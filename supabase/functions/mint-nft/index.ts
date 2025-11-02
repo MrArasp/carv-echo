@@ -15,8 +15,18 @@ serve(async (req) => {
     const NFT_STORAGE_API_KEY = Deno.env.get("NFT_STORAGE_API_KEY");
     
     if (!NFT_STORAGE_API_KEY) {
-      throw new Error("NFT_STORAGE_API_KEY is not configured");
+      console.log("NFT_STORAGE_API_KEY not configured, skipping IPFS upload");
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          ipfsUrl: null,
+          message: "Prediction saved without IPFS (API key not configured)" 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    console.log("Uploading to IPFS with metadata:", metadata);
 
     // Convert metadata to Blob for nft.storage
     const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
@@ -37,7 +47,17 @@ serve(async (req) => {
     if (!nftStorageResponse.ok) {
       const errorText = await nftStorageResponse.text();
       console.error("nft.storage error:", nftStorageResponse.status, errorText);
-      throw new Error(`Failed to upload to IPFS: ${errorText}`);
+      
+      // Return success but without IPFS URL if upload fails
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          ipfsUrl: null,
+          message: "Prediction saved without IPFS (upload failed)",
+          error: errorText
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const uploadData = await nftStorageResponse.json();
@@ -55,12 +75,16 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error in mint-nft function:", error);
+    
+    // Return success without IPFS on error
     return new Response(
       JSON.stringify({ 
-        success: false, 
+        success: true,
+        ipfsUrl: null,
+        message: "Prediction saved without IPFS (error occurred)",
         error: error instanceof Error ? error.message : "Unknown error" 
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

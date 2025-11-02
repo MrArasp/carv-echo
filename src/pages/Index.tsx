@@ -60,23 +60,28 @@ const Index = () => {
         body: { metadata }
       });
 
-      if (mintError) throw mintError;
+      if (mintError) {
+        console.error("IPFS upload error:", mintError);
+        toast.warning("Prediction saved without IPFS", {
+          description: "NFT storage unavailable",
+        });
+      }
 
-      // Save prediction to database
+      // Save prediction to database (with or without IPFS URL)
       const { error: dbError } = await supabase.from('predictions').insert({
         wallet_address: publicKey.toString(),
         current_price: price,
         prediction: direction,
         target_price: parseFloat(aiData.targetPrice),
         unlock_at: unlockAt.toISOString(),
-        ipfs_url: mintData.ipfsUrl,
+        ipfs_url: mintData?.ipfsUrl || null,
         status: 'locked',
       });
 
       if (dbError) throw dbError;
 
-      toast.success("NFT Minted!", {
-        description: "Your prediction is now on IPFS",
+      toast.success("Prediction Created!", {
+        description: mintData?.ipfsUrl ? "Stored on IPFS ✓" : "Saved to database",
       });
 
       setRefreshHistory(prev => prev + 1);
