@@ -9,9 +9,10 @@ import { PredictionHistory } from "@/components/PredictionHistory";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import bs58 from "bs58";
 
 const Index = () => {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, signMessage } = useWallet();
   const [currentPrice, setCurrentPrice] = useState(1.23);
   const [aiMessage, setAiMessage] = useState("");
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -28,11 +29,16 @@ const Index = () => {
       return;
     }
 
+    if (!signMessage) {
+      toast.error("Wallet does not support message signing");
+      return;
+    }
+
     setIsLoadingAI(true);
     setAiMessage("");
 
     try {
-      // Get AI confirmation
+      // Step 1: Get AI confirmation first to get target price
       const { data: aiData, error: aiError } = await supabase.functions.invoke('grok-confirm', {
         body: { currentPrice: price, prediction: direction }
       });
@@ -40,6 +46,51 @@ const Index = () => {
       if (aiError) throw aiError;
       setAiMessage(aiData.confirmation);
 
+      // Step 2: Generate nonce and create message to sign
+      const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const message = `CARV Echo Prediction\nNonce: ${nonce}\nPrice: ${price}\nDirection: ${direction}\nTarget: ${aiData.targetPrice}`;
+      
+      toast.loading("Signing prediction with your wallet...");
+
+      // Step 3: Request wallet signature
+      let signature: string;
+      try {
+        const messageBytes = new TextEncoder().encode(message);
+        const signatureBytes = await signMessage(messageBytes);
+        signature = bs58.encode(signatureBytes);
+        toast.dismiss();
+      } catch (signError) {
+        toast.dismiss();
+        toast.error("Signature required for security - please try again");
+        console.error("Signature rejected:", signError);
+        setIsLoadingAI(false);
+        return;
+      }
+
+      // Step 4: Verify signature with backend
+      toast.loading("Verifying signature...");
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-prediction', {
+        body: {
+          walletAddress: publicKey.toString(),
+          prediction: direction,
+          currentPrice: price,
+          targetPrice: aiData.targetPrice,
+          signature,
+          nonce,
+          message,
+        }
+      });
+
+      toast.dismiss();
+
+      if (verifyError || !verifyData?.success) {
+        console.error("Signature verification failed:", verifyError || verifyData);
+        toast.error(verifyData?.error || "Invalid signature - please reconnect your wallet");
+        setIsLoadingAI(false);
+        return;
+      }
+
+      // Step 5: Continue with prediction creation
       // Calculate unlock time (next 00:00 UTC)
       const unlockAt = new Date();
       unlockAt.setUTCDate(unlockAt.getUTCDate() + 1);
@@ -59,9 +110,14 @@ const Index = () => {
 
       setIsMinting(true);
 
-      // Upload to IPFS
+      // Upload to IPFS with signature
       const { data: mintData, error: mintError } = await supabase.functions.invoke('mint-nft', {
-        body: { metadata }
+        body: { 
+          metadata,
+          signature,
+          nonce,
+          signedMessage: message,
+        }
       });
 
       if (mintError) {
@@ -71,7 +127,7 @@ const Index = () => {
         });
       }
 
-      // Save prediction to database (with or without IPFS URL)
+      // Save prediction to database with signature proof
       const { error: dbError } = await supabase.from('predictions').insert({
         wallet_address: publicKey.toString(),
         current_price: price,
@@ -80,12 +136,14 @@ const Index = () => {
         unlock_at: unlockAt.toISOString(),
         ipfs_url: mintData?.ipfsUrl || null,
         status: 'locked',
+        signature,
+        nonce,
       });
 
       if (dbError) throw dbError;
 
       toast.success("Prediction Created!", {
-        description: mintData?.ipfsUrl ? "Stored on IPFS ✓" : "Saved to database",
+        description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved",
       });
 
       setRefreshHistory(prev => prev + 1);

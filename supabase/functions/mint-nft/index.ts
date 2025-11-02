@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { metadata } = await req.json();
+    const { metadata, signature, nonce, signedMessage } = await req.json();
     const NFT_STORAGE_API_KEY = Deno.env.get("NFT_STORAGE_API_KEY");
     
     if (!NFT_STORAGE_API_KEY) {
@@ -28,8 +28,18 @@ serve(async (req) => {
 
     console.log("Uploading to IPFS with metadata:", metadata);
 
+    // Add signature verification data to metadata if provided
+    const enrichedMetadata = signature && nonce ? {
+      ...metadata,
+      signature,
+      nonce,
+      signedMessage,
+      verifier: 'CARV SVM',
+      wallet_verified: true,
+    } : metadata;
+
     // Convert metadata to Blob for nft.storage
-    const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+    const metadataBlob = new Blob([JSON.stringify(enrichedMetadata)], { type: 'application/json' });
     
     // Create form data
     const formData = new FormData();

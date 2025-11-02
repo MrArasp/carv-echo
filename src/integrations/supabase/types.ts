@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      prediction_nonces: {
+        Row: {
+          created_at: string
+          id: string
+          nonce: string
+          used_at: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nonce: string
+          used_at?: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nonce?: string
+          used_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       predictions: {
         Row: {
           created_at: string
@@ -52,8 +76,10 @@ export type Database = {
           id: string
           ipfs_url: string | null
           nft_mint: string | null
+          nonce: string | null
           points: number | null
           prediction: string
+          signature: string | null
           status: string
           target_price: number
           unlock_at: string
@@ -67,8 +93,10 @@ export type Database = {
           id?: string
           ipfs_url?: string | null
           nft_mint?: string | null
+          nonce?: string | null
           points?: number | null
           prediction: string
+          signature?: string | null
           status?: string
           target_price: number
           unlock_at: string
@@ -82,8 +110,10 @@ export type Database = {
           id?: string
           ipfs_url?: string | null
           nft_mint?: string | null
+          nonce?: string | null
           points?: number | null
           prediction?: string
+          signature?: string | null
           status?: string
           target_price?: number
           unlock_at?: string

@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.get-carv-price]
 verify_jwt = false
+
+[functions.verify-prediction]
+verify_jwt = false
