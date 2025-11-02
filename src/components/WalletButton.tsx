@@ -2,7 +2,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Shield } from "lucide-react";
+import { truncateAddress } from "@/lib/walletUtils";
 
 export const WalletButton = () => {
   const { connected, publicKey } = useWallet();
@@ -15,12 +16,15 @@ export const WalletButton = () => {
         />
         {connected && publicKey && (
           <div className="flex items-center justify-between px-2">
-            <Badge variant="outline" className="text-xs font-mono">
-              {publicKey.toString().slice(0, 4)}...{publicKey.toString().slice(-4)}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              <Badge variant="outline" className="text-xs font-mono">
+                {truncateAddress(publicKey.toString())}
+              </Badge>
+            </div>
             <div className="flex items-center gap-2 text-success text-xs">
               <CheckCircle2 className="h-4 w-4" />
-              <span>CARV SVM Testnet</span>
+              <span>CARV SVM</span>
             </div>
           </div>
         )}

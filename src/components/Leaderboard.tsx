@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { truncateAddress } from "@/lib/walletUtils";
 
 export const Leaderboard = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
@@ -16,14 +17,14 @@ export const Leaderboard = () => {
     try {
       const { data, error } = await supabase
         .from('leaderboard')
-        .select('*')
+        .select('hashed_wallet, total_points, correct_predictions, total_predictions')
         .order('total_points', { ascending: false })
         .limit(10);
 
       if (error) throw error;
       setLeaders(data || []);
     } catch (error) {
-      console.error("Error loading leaderboard:", error);
+      console.error("Error loading leaderboard");
     } finally {
       setIsLoading(false);
     }
@@ -79,9 +80,8 @@ export const Leaderboard = () => {
                 <div className="flex items-center gap-3">
                   {getRankIcon(index)}
                   <div>
-                    <p className="font-mono text-sm">
-                      {leader.wallet_address.slice(0, 4)}...
-                      {leader.wallet_address.slice(-4)}
+                    <p className="font-mono text-sm font-bold">
+                      Trader #{leader.hashed_wallet}
                     </p>
                     <div className="flex gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">

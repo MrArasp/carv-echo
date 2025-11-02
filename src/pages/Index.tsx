@@ -10,6 +10,7 @@ import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import bs58 from "bs58";
+import { hashWalletAddress, sanitizeAddressForLog } from "@/lib/walletUtils";
 
 const Index = () => {
   const { publicKey, connected, signMessage } = useWallet();
@@ -50,6 +51,7 @@ const Index = () => {
       const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const message = `CARV Echo Prediction\nNonce: ${nonce}\nPrice: ${price}\nDirection: ${direction}\nTarget: ${aiData.targetPrice}`;
       
+      console.log("Wallet signing requested for prediction:", sanitizeAddressForLog(publicKey.toString()));
       toast.loading("Signing prediction with your wallet...");
 
       // Step 3: Request wallet signature
@@ -62,7 +64,7 @@ const Index = () => {
       } catch (signError) {
         toast.dismiss();
         toast.error("Signature required for security - please try again");
-        console.error("Signature rejected:", signError);
+        console.error("Signature rejected for", sanitizeAddressForLog(publicKey.toString()));
         setIsLoadingAI(false);
         return;
       }
@@ -84,7 +86,7 @@ const Index = () => {
       toast.dismiss();
 
       if (verifyError || !verifyData?.success) {
-        console.error("Signature verification failed:", verifyError || verifyData);
+        console.error("Signature verification failed for", sanitizeAddressForLog(publicKey.toString()));
         toast.error(verifyData?.error || "Invalid signature - please reconnect your wallet");
         setIsLoadingAI(false);
         return;
@@ -96,10 +98,14 @@ const Index = () => {
       unlockAt.setUTCDate(unlockAt.getUTCDate() + 1);
       unlockAt.setUTCHours(0, 0, 0, 0);
 
-      // Create metadata
+      // Hash wallet address for privacy in metadata
+      const hashedWallet = await hashWalletAddress(publicKey.toString());
+
+      // Create metadata (use hashed wallet instead of full address)
       const metadata = {
         name: `CARV Echo Prediction #${Math.floor(Math.random() * 10000)}`,
         description: `Prediction: $CARV will go ${direction} 5% from $${price}`,
+        trader_id: hashedWallet, // Anonymous trader ID
         current_price: price,
         prediction: direction,
         target_price: aiData.targetPrice,
@@ -121,15 +127,16 @@ const Index = () => {
       });
 
       if (mintError) {
-        console.error("IPFS upload error:", mintError);
+        console.error("IPFS upload failed");
         toast.warning("Prediction saved without IPFS", {
           description: "NFT storage unavailable",
         });
       }
 
-      // Save prediction to database with signature proof
+      // Save prediction to database with signature proof and hashed wallet
       const { error: dbError } = await supabase.from('predictions').insert({
         wallet_address: publicKey.toString(),
+        hashed_wallet: hashedWallet,
         current_price: price,
         prediction: direction,
         target_price: parseFloat(aiData.targetPrice),
@@ -148,7 +155,7 @@ const Index = () => {
 
       setRefreshHistory(prev => prev + 1);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Prediction creation failed:", error instanceof Error ? error.message : 'Unknown error');
       toast.error("Failed to create prediction");
     } finally {
       setIsLoadingAI(false);
