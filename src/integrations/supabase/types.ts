@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           correct_predictions: number | null
           created_at: string
+          hashed_wallet: string | null
           id: string
           total_points: number | null
           total_predictions: number | null
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           correct_predictions?: number | null
           created_at?: string
+          hashed_wallet?: string | null
           id?: string
           total_points?: number | null
           total_predictions?: number | null
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           correct_predictions?: number | null
           created_at?: string
+          hashed_wallet?: string | null
           id?: string
           total_points?: number | null
           total_predictions?: number | null
@@ -73,6 +76,7 @@ export type Database = {
           created_at: string
           current_price: number
           final_price: number | null
+          hashed_wallet: string | null
           id: string
           ipfs_url: string | null
           nft_mint: string | null
@@ -90,6 +94,7 @@ export type Database = {
           created_at?: string
           current_price: number
           final_price?: number | null
+          hashed_wallet?: string | null
           id?: string
           ipfs_url?: string | null
           nft_mint?: string | null
@@ -107,6 +112,7 @@ export type Database = {
           created_at?: string
           current_price?: number
           final_price?: number | null
+          hashed_wallet?: string | null
           id?: string
           ipfs_url?: string | null
           nft_mint?: string | null
@@ -127,7 +133,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      hash_wallet_address: { Args: { wallet_addr: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
