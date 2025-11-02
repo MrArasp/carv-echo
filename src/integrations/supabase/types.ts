@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leaderboard: {
+        Row: {
+          correct_predictions: number | null
+          created_at: string
+          id: string
+          total_points: number | null
+          total_predictions: number | null
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          correct_predictions?: number | null
+          created_at?: string
+          id?: string
+          total_points?: number | null
+          total_predictions?: number | null
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          correct_predictions?: number | null
+          created_at?: string
+          id?: string
+          total_points?: number | null
+          total_predictions?: number | null
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      predictions: {
+        Row: {
+          created_at: string
+          current_price: number
+          final_price: number | null
+          id: string
+          ipfs_url: string | null
+          nft_mint: string | null
+          points: number | null
+          prediction: string
+          status: string
+          target_price: number
+          unlock_at: string
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          current_price: number
+          final_price?: number | null
+          id?: string
+          ipfs_url?: string | null
+          nft_mint?: string | null
+          points?: number | null
+          prediction: string
+          status?: string
+          target_price: number
+          unlock_at: string
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          current_price?: number
+          final_price?: number | null
+          id?: string
+          ipfs_url?: string | null
+          nft_mint?: string | null
+          points?: number | null
+          prediction?: string
+          status?: string
+          target_price?: number
+          unlock_at?: string
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
