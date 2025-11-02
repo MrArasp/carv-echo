@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.mint-nft]
 verify_jwt = false
+
+[functions.get-carv-price]
+verify_jwt = false

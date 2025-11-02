@@ -18,6 +18,10 @@ const Index = () => {
   const [isMinting, setIsMinting] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
 
+  const handlePriceUpdate = (newPrice: number) => {
+    setCurrentPrice(newPrice);
+  };
+
   const handlePrediction = async (direction: "UP" | "DOWN", price: number) => {
     if (!connected || !publicKey) {
       toast.error("Please connect your wallet first");
@@ -127,8 +131,8 @@ const Index = () => {
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Left Column - Game */}
           <div className="lg:col-span-2 space-y-8">
-            <PriceDisplay />
-            <PredictionButtons 
+            <PriceDisplay onPriceUpdate={handlePriceUpdate} />
+            <PredictionButtons
               currentPrice={currentPrice} 
               onPredict={handlePrediction}
               disabled={!connected || isLoadingAI || isMinting}

@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, XCircle } from "lucide-react";
+import { Trophy, XCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,6 +16,27 @@ interface RevealCardProps {
 export const RevealCard = ({ prediction, onReveal }: RevealCardProps) => {
   const [finalPrice, setFinalPrice] = useState("");
   const [isRevealing, setIsRevealing] = useState(false);
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+
+  const fetchCurrentPrice = async () => {
+    setIsFetchingPrice(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-carv-price');
+      
+      if (error) {
+        toast.error("Failed to fetch current price");
+        return;
+      }
+
+      setFinalPrice(data.price.toFixed(4));
+      toast.success("Price fetched from Bybit");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to fetch price");
+    } finally {
+      setIsFetchingPrice(false);
+    }
+  };
 
   const handleReveal = async () => {
     if (!finalPrice || isNaN(Number(finalPrice))) {
@@ -103,47 +124,59 @@ export const RevealCard = ({ prediction, onReveal }: RevealCardProps) => {
     <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
       <h3 className="text-xl font-bold mb-4">Reveal Prediction</h3>
       
-      <div className="space-y-4">
-        <div className="p-4 rounded-lg bg-muted/30 border border-primary/10">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Your Prediction:</span>
-            <Badge variant={prediction.prediction === "UP" ? "default" : "destructive"}>
-              {prediction.prediction} 5%
-            </Badge>
+        <div className="space-y-4">
+          <div className="p-4 rounded-lg bg-muted/30 border border-primary/10">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Your Prediction:</span>
+              <Badge variant={prediction.prediction === "UP" ? "default" : "destructive"}>
+                {prediction.prediction} 5%
+              </Badge>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Start:</span>
+              <span className="font-mono">${prediction.current_price}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Target:</span>
+              <span className="font-mono">${prediction.target_price}</span>
+            </div>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Start:</span>
-            <span className="font-mono">${prediction.current_price}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Target:</span>
-            <span className="font-mono">${prediction.target_price}</span>
-          </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="finalPrice">Final Price at 00:00 UTC</Label>
-          <Input
-            id="finalPrice"
-            type="number"
-            step="0.0001"
-            placeholder="Enter final price"
-            value={finalPrice}
-            onChange={(e) => setFinalPrice(e.target.value)}
-            disabled={!canReveal || isRevealing}
-          />
-        </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="finalPrice">Final Price at 00:00 UTC</Label>
+              <Button
+                onClick={fetchCurrentPrice}
+                disabled={isFetchingPrice || !canReveal}
+                variant="ghost"
+                size="sm"
+                className="gap-1 h-7 text-xs"
+              >
+                <RefreshCw className={`h-3 w-3 ${isFetchingPrice ? 'animate-spin' : ''}`} />
+                Fetch Live
+              </Button>
+            </div>
+            <Input
+              id="finalPrice"
+              type="number"
+              step="0.0001"
+              placeholder="Enter final price or fetch live"
+              value={finalPrice}
+              onChange={(e) => setFinalPrice(e.target.value)}
+              disabled={!canReveal || isRevealing}
+            />
+          </div>
 
-        <Button
-          onClick={handleReveal}
-          disabled={!canReveal || !finalPrice || isRevealing}
-          variant="glow"
-          size="lg"
-          className="w-full"
-        >
-          {isRevealing ? "Revealing..." : canReveal ? "Reveal Result" : "Locked"}
-        </Button>
-      </div>
+          <Button
+            onClick={handleReveal}
+            disabled={!canReveal || !finalPrice || isRevealing}
+            variant="glow"
+            size="lg"
+            className="w-full"
+          >
+            {isRevealing ? "Revealing..." : canReveal ? "Reveal Result" : "Locked"}
+          </Button>
+        </div>
     </Card>
   );
 };
