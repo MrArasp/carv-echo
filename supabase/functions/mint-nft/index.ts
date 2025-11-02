@@ -18,14 +18,20 @@ serve(async (req) => {
       throw new Error("NFT_STORAGE_API_KEY is not configured");
     }
 
+    // Convert metadata to Blob for nft.storage
+    const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', metadataBlob, 'metadata.json');
+
     // Upload metadata to IPFS via nft.storage
     const nftStorageResponse = await fetch('https://api.nft.storage/upload', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${NFT_STORAGE_API_KEY}`,
-        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(metadata),
+      body: formData,
     });
 
     if (!nftStorageResponse.ok) {
