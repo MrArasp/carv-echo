@@ -1,0 +1,4 @@
+project_id = "tkgwflnzhuqfywasreea"
+
+[functions.grok-confirm]
+verify_jwt = false
