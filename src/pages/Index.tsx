@@ -1,50 +1,91 @@
 import { useState } from "react";
-import { WalletConnect } from "@/components/WalletConnect";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { PredictionButtons } from "@/components/PredictionButtons";
 import { AIConfirmation } from "@/components/AIConfirmation";
-import { NFTMintCard } from "@/components/NFTMintCard";
+import { Leaderboard } from "@/components/Leaderboard";
+import { PredictionHistory } from "@/components/PredictionHistory";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
-
-interface NFTData {
-  currentPrice: number;
-  prediction: "UP" | "DOWN";
-  targetPrice: string;
-  timestamp: string;
-}
+import { toast } from "sonner";
 
 const Index = () => {
+  const { publicKey, connected } = useWallet();
   const [currentPrice, setCurrentPrice] = useState(1.23);
   const [aiMessage, setAiMessage] = useState("");
   const [isLoadingAI, setIsLoadingAI] = useState(false);
-  const [nftData, setNftData] = useState<NFTData | null>(null);
+  const [isMinting, setIsMinting] = useState(false);
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   const handlePrediction = async (direction: "UP" | "DOWN", price: number) => {
+    if (!connected || !publicKey) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
     setIsLoadingAI(true);
     setAiMessage("");
 
     try {
-      const { data, error } = await supabase.functions.invoke('grok-confirm', {
+      // Get AI confirmation
+      const { data: aiData, error: aiError } = await supabase.functions.invoke('grok-confirm', {
         body: { currentPrice: price, prediction: direction }
       });
 
-      if (error) throw error;
+      if (aiError) throw aiError;
+      setAiMessage(aiData.confirmation);
 
-      setAiMessage(data.confirmation);
-      
-      // Set NFT data for minting
-      setNftData({
-        currentPrice: price,
+      // Calculate unlock time (next 00:00 UTC)
+      const unlockAt = new Date();
+      unlockAt.setUTCDate(unlockAt.getUTCDate() + 1);
+      unlockAt.setUTCHours(0, 0, 0, 0);
+
+      // Create metadata
+      const metadata = {
+        name: `CARV Echo Prediction #${Math.floor(Math.random() * 10000)}`,
+        description: `Prediction: $CARV will go ${direction} 5% from $${price}`,
+        current_price: price,
         prediction: direction,
-        targetPrice: data.targetPrice,
-        timestamp: new Date().toISOString(),
+        target_price: aiData.targetPrice,
+        unlock_at: unlockAt.toISOString(),
+        status: "locked",
+        created_at: new Date().toISOString(),
+      };
+
+      setIsMinting(true);
+
+      // Upload to IPFS
+      const { data: mintData, error: mintError } = await supabase.functions.invoke('mint-nft', {
+        body: { metadata }
       });
+
+      if (mintError) throw mintError;
+
+      // Save prediction to database
+      const { error: dbError } = await supabase.from('predictions').insert({
+        wallet_address: publicKey.toString(),
+        current_price: price,
+        prediction: direction,
+        target_price: parseFloat(aiData.targetPrice),
+        unlock_at: unlockAt.toISOString(),
+        ipfs_url: mintData.ipfsUrl,
+        status: 'locked',
+      });
+
+      if (dbError) throw dbError;
+
+      toast.success("NFT Minted!", {
+        description: "Your prediction is now on IPFS",
+      });
+
+      setRefreshHistory(prev => prev + 1);
     } catch (error) {
-      console.error("Error getting AI confirmation:", error);
-      setAiMessage("Error getting confirmation. Please try again.");
+      console.error("Error:", error);
+      toast.error("Failed to create prediction");
     } finally {
       setIsLoadingAI(false);
+      setIsMinting(false);
     }
   };
 
@@ -74,27 +115,32 @@ const Index = () => {
 
         {/* Wallet Connect */}
         <div className="max-w-md mx-auto mb-8">
-          <WalletConnect />
+          <WalletButton />
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* Left Column */}
-          <div className="space-y-8">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {/* Left Column - Game */}
+          <div className="lg:col-span-2 space-y-8">
             <PriceDisplay />
             <PredictionButtons 
               currentPrice={currentPrice} 
               onPredict={handlePrediction}
+              disabled={!connected || isLoadingAI || isMinting}
             />
             <AIConfirmation 
               message={aiMessage} 
-              isLoading={isLoadingAI}
+              isLoading={isLoadingAI || isMinting}
+            />
+            <PredictionHistory 
+              walletAddress={connected ? publicKey?.toString() || null : null}
+              refreshTrigger={refreshHistory}
             />
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - Leaderboard */}
           <div className="space-y-8">
-            <NFTMintCard nftData={nftData} />
+            <Leaderboard />
           </div>
         </div>
 

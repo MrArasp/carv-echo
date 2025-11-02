@@ -6,9 +6,10 @@ import { toast } from "sonner";
 interface PredictionButtonsProps {
   currentPrice: number;
   onPredict: (direction: "UP" | "DOWN", currentPrice: number) => void;
+  disabled?: boolean;
 }
 
-export const PredictionButtons = ({ currentPrice, onPredict }: PredictionButtonsProps) => {
+export const PredictionButtons = ({ currentPrice, onPredict, disabled = false }: PredictionButtonsProps) => {
   const handlePredict = (direction: "UP" | "DOWN") => {
     const targetPrice = direction === "UP" 
       ? (currentPrice * 1.05).toFixed(4)
@@ -35,6 +36,7 @@ export const PredictionButtons = ({ currentPrice, onPredict }: PredictionButtons
           variant="prediction-up"
           size="xl"
           className="flex-col h-32"
+          disabled={disabled}
         >
           <ArrowUp className="h-8 w-8 mb-2" />
           <span className="text-2xl font-bold">5% UP</span>
@@ -47,6 +49,7 @@ export const PredictionButtons = ({ currentPrice, onPredict }: PredictionButtons
           variant="prediction-down"
           size="xl"
           className="flex-col h-32"
+          disabled={disabled}
         >
           <ArrowDown className="h-8 w-8 mb-2" />
           <span className="text-2xl font-bold">5% DOWN</span>
