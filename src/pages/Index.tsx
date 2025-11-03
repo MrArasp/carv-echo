@@ -1,16 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { PredictionButtons } from "@/components/PredictionButtons";
 import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
 import { PredictionHistory } from "@/components/PredictionHistory";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Fuel, ExternalLink, AlertCircle } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import bs58 from "bs58";
 import { hashWalletAddress, sanitizeAddressForLog } from "@/lib/walletUtils";
+
+const CARV_RPC = "https://rpc.testnet.carv.io/rpc";
+const MIN_SOL_BALANCE = 0.01;
 
 const Index = () => {
   const { publicKey, connected, signMessage } = useWallet();
@@ -19,6 +27,32 @@ const Index = () => {
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [refreshHistory, setRefreshHistory] = useState(0);
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+
+  // Check SOL balance when wallet connects
+  useEffect(() => {
+    const checkBalance = async () => {
+      if (!connected || !publicKey) {
+        setSolBalance(null);
+        return;
+      }
+
+      setIsCheckingBalance(true);
+      try {
+        const connection = new Connection(CARV_RPC, "confirmed");
+        const balance = await connection.getBalance(publicKey);
+        setSolBalance(balance / LAMPORTS_PER_SOL);
+      } catch (error) {
+        console.error("Failed to check SOL balance:", error);
+        setSolBalance(null);
+      } finally {
+        setIsCheckingBalance(false);
+      }
+    };
+
+    checkBalance();
+  }, [connected, publicKey]);
 
   const handlePriceUpdate = (newPrice: number) => {
     setCurrentPrice(newPrice);
@@ -32,6 +66,18 @@ const Index = () => {
 
     if (!signMessage) {
       toast.error("Wallet does not support message signing");
+      return;
+    }
+
+    // Check SOL balance for gas
+    if (solBalance !== null && solBalance < MIN_SOL_BALANCE) {
+      toast.error("Insufficient SOL for gas", {
+        description: "Get SOL from the faucet to continue",
+        action: {
+          label: "Get SOL",
+          onClick: () => window.open("https://faucet.testnet.carv.io", "_blank"),
+        },
+      });
       return;
     }
 
@@ -188,8 +234,54 @@ const Index = () => {
         </header>
 
         {/* Wallet Connect */}
-        <div className="max-w-md mx-auto mb-8">
+        <div className="max-w-md mx-auto mb-8 space-y-4">
           <WalletButton />
+          
+          {/* SOL Gas Info */}
+          {connected && (
+            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Fuel className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Gas Balance</p>
+                    {isCheckingBalance ? (
+                      <p className="text-xs text-muted-foreground">Checking...</p>
+                    ) : solBalance !== null ? (
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg font-bold">
+                          {solBalance.toFixed(4)} SOL
+                        </p>
+                        {solBalance < MIN_SOL_BALANCE && (
+                          <Badge variant="destructive" className="text-xs">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Low
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Unable to check</p>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open("https://faucet.testnet.carv.io", "_blank")}
+                  className="gap-2"
+                >
+                  Get SOL
+                  <ExternalLink className="h-3 w-3" />
+                </Button>
+              </div>
+              {solBalance !== null && solBalance < MIN_SOL_BALANCE && (
+                <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  Need at least {MIN_SOL_BALANCE} SOL for gas fees
+                </p>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* Main Content Grid */}
