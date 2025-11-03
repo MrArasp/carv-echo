@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import bs58 from 'https://esm.sh/bs58@6.0.0';
+import nacl from 'https://esm.sh/tweetnacl@1.0.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -66,17 +67,15 @@ serve(async (req) => {
       );
     }
 
-    // Verify signature using @noble/ed25519
-    const { verify } = await import('https://esm.sh/@noble/ed25519@2.0.0');
-    
+    // Verify signature using tweetnacl (Ed25519 for Solana)
     try {
       // Decode base58 signature and public key
       const signatureBytes = bs58.decode(signature);
       const publicKeyBytes = bs58.decode(walletAddress);
       const messageBytes = new TextEncoder().encode(message);
 
-      // Verify the signature
-      const isValid = await verify(signatureBytes, messageBytes, publicKeyBytes);
+      // Verify the signature using nacl
+      const isValid = nacl.sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes);
 
       if (!isValid) {
         console.error('Invalid signature for wallet:', walletAddress);
