@@ -85,22 +85,36 @@ const Index = () => {
     setAiMessage("");
 
     try {
-      // Step 1: Get AI confirmation first to get target price
+      // Step 1: Fetch latest price to ensure accuracy
+      const { data: priceData, error: priceError } = await supabase.functions.invoke('get-carv-price');
+      
+      if (priceError) {
+        toast.error("Failed to get current price");
+        setIsLoadingAI(false);
+        return;
+      }
+      
+      const latestPrice = priceData.price;
+      setCurrentPrice(latestPrice);
+      
+      toast.info(`Locking price at $${latestPrice.toFixed(4)}`);
+
+      // Step 2: Get AI confirmation with latest price
       const { data: aiData, error: aiError } = await supabase.functions.invoke('grok-confirm', {
-        body: { currentPrice: price, prediction: direction }
+        body: { currentPrice: latestPrice, prediction: direction }
       });
 
       if (aiError) throw aiError;
       setAiMessage(aiData.confirmation);
 
-      // Step 2: Generate nonce and create message to sign
+      // Step 3: Generate nonce and create message to sign
       const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      const message = `CARV Echo Prediction\nNonce: ${nonce}\nPrice: ${price}\nDirection: ${direction}\nTarget: ${aiData.targetPrice}`;
+      const message = `CARV Echo Prediction\nNonce: ${nonce}\nPrice: ${latestPrice}\nDirection: ${direction}\nTarget: ${aiData.targetPrice}`;
       
       console.log("Wallet signing requested for prediction:", sanitizeAddressForLog(publicKey.toString()));
       toast.loading("Signing prediction with your wallet...");
 
-      // Step 3: Request wallet signature
+      // Step 4: Request wallet signature
       let signature: string;
       try {
         const messageBytes = new TextEncoder().encode(message);
@@ -115,13 +129,13 @@ const Index = () => {
         return;
       }
 
-      // Step 4: Verify signature with backend
+      // Step 5: Verify signature with backend
       toast.loading("Verifying signature...");
       const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-prediction', {
         body: {
           walletAddress: publicKey.toString(),
           prediction: direction,
-          currentPrice: price,
+          currentPrice: latestPrice,
           targetPrice: aiData.targetPrice,
           signature,
           nonce,
@@ -138,7 +152,7 @@ const Index = () => {
         return;
       }
 
-      // Step 5: Continue with prediction creation
+      // Step 6: Continue with prediction creation
       // Calculate unlock time (next 00:00 UTC)
       const unlockAt = new Date();
       unlockAt.setUTCDate(unlockAt.getUTCDate() + 1);
@@ -150,9 +164,9 @@ const Index = () => {
       // Create metadata (use hashed wallet instead of full address)
       const metadata = {
         name: `CARV Echo Prediction #${Math.floor(Math.random() * 10000)}`,
-        description: `Prediction: $CARV will go ${direction} 5% from $${price}`,
+        description: `Prediction: $CARV will go ${direction} 5% from $${latestPrice}`,
         trader_id: hashedWallet, // Anonymous trader ID
-        current_price: price,
+        current_price: latestPrice,
         prediction: direction,
         target_price: aiData.targetPrice,
         unlock_at: unlockAt.toISOString(),
@@ -183,7 +197,7 @@ const Index = () => {
       const { error: dbError } = await supabase.from('predictions').insert({
         wallet_address: publicKey.toString(),
         hashed_wallet: hashedWallet,
-        current_price: price,
+        current_price: latestPrice,
         prediction: direction,
         target_price: parseFloat(aiData.targetPrice),
         unlock_at: unlockAt.toISOString(),
