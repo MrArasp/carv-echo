@@ -58,6 +58,41 @@ const Index = () => {
     setCurrentPrice(newPrice);
   };
 
+  const checkActivePrediction = async () => {
+    if (!publicKey) return false;
+    
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    
+    const { data, error } = await supabase
+      .from('predictions')
+      .select('id')
+      .eq('wallet_address', publicKey.toString())
+      .eq('status', 'locked')
+      .gte('created_at', today.toISOString())
+      .maybeSingle();
+      
+    return !!data;
+  };
+
+  const handleCheckPredictions = async () => {
+    toast.loading("Checking predictions...");
+    try {
+      const { data, error } = await supabase.functions.invoke('check-predictions');
+      toast.dismiss();
+      
+      if (error) {
+        toast.error("Failed to check predictions");
+      } else {
+        toast.success(`Checked ${data.processed} predictions`);
+        setRefreshHistory(prev => prev + 1);
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Error checking predictions");
+    }
+  };
+
   const handlePrediction = async (direction: "UP" | "DOWN", price: number) => {
     if (!connected || !publicKey) {
       toast.error("Please connect your wallet first");
@@ -77,6 +112,15 @@ const Index = () => {
           label: "Get SOL",
           onClick: () => window.open("https://faucet.testnet.carv.io", "_blank"),
         },
+      });
+      return;
+    }
+
+    // Check for active prediction today
+    const hasActivePrediction = await checkActivePrediction();
+    if (hasActivePrediction) {
+      toast.error("شما یک پیش‌بینی فعال دارید!", {
+        description: "فقط یک پیش‌بینی در روز مجاز است"
       });
       return;
     }
@@ -302,7 +346,21 @@ const Index = () => {
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Left Column - Game */}
           <div className="lg:col-span-2 space-y-8">
-            <PriceDisplay onPriceUpdate={handlePriceUpdate} />
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <PriceDisplay onPriceUpdate={handlePriceUpdate} />
+              </div>
+              {connected && (
+                <Button
+                  onClick={handleCheckPredictions}
+                  variant="outline"
+                  size="sm"
+                  className="ml-4"
+                >
+                  Check Predictions
+                </Button>
+              )}
+            </div>
             <PredictionButtons
               currentPrice={currentPrice} 
               onPredict={handlePrediction}

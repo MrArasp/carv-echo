@@ -134,6 +134,15 @@ export type Database = {
     }
     Functions: {
       hash_wallet_address: { Args: { wallet_addr: string }; Returns: string }
+      update_leaderboard_stats: {
+        Args: {
+          p_hashed_wallet: string
+          p_is_correct: boolean
+          p_points: number
+          p_wallet_address: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

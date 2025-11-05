@@ -95,7 +95,7 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger }: PredictionH
                   <Badge className="bg-success">+{pred.points} pts</Badge>
                 )}
                 {pred.status === 'wrong' && (
-                  <Badge variant="destructive">Wrong</Badge>
+                  <Badge variant="destructive">{pred.points} pts</Badge>
                 )}
               </div>
 

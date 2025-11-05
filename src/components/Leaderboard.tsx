@@ -11,6 +11,13 @@ export const Leaderboard = () => {
 
   useEffect(() => {
     loadLeaderboard();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadLeaderboard();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadLeaderboard = async () => {

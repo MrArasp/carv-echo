@@ -57,7 +57,7 @@ export const RevealCard = ({ prediction, onReveal }: RevealCardProps) => {
       isCorrect = finalPriceNum <= targetPrice;
     }
 
-    const points = isCorrect ? 10 : 0;
+    const points = isCorrect ? 10 : -10;
     const status = isCorrect ? "correct" : "wrong";
 
     try {
@@ -105,8 +105,8 @@ export const RevealCard = ({ prediction, onReveal }: RevealCardProps) => {
       }
 
       toast.success(
-        isCorrect ? "Correct Prediction! 🎉" : "Wrong Prediction",
-        { description: isCorrect ? `+${points} points!` : "Better luck next time!" }
+        isCorrect ? "Correct Prediction! 🎉" : "Wrong Prediction ❌",
+        { description: isCorrect ? `+${points} points!` : `-10 points - Better luck next time!` }
       );
 
       onReveal();
