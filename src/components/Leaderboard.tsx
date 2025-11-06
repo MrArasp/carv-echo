@@ -24,7 +24,7 @@ export const Leaderboard = () => {
     try {
       const { data, error } = await supabase
         .from('leaderboard')
-        .select('hashed_wallet, total_points, correct_predictions, total_predictions')
+        .select('wallet_address, total_points, correct_predictions, total_predictions')
         .order('total_points', { ascending: false })
         .limit(10);
 
@@ -88,7 +88,7 @@ export const Leaderboard = () => {
                   {getRankIcon(index)}
                   <div>
                     <p className="font-mono text-sm font-bold">
-                      Trader #{leader.hashed_wallet}
+                      {truncateAddress(leader.wallet_address)}
                     </p>
                     <div className="flex gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">

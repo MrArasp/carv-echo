@@ -282,85 +282,76 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-12 text-center">
-          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
-            CARV Echo
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Daily 5% Prediction Game on $CARV • CARV SVM Testnet
-          </p>
-        </header>
+        <header className="mb-12">
+          <div className="flex items-start justify-between">
+            {/* Left - Title */}
+            <div>
+              <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
+                CARV Echo
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Daily 5% Prediction Game on $CARV • CARV SVM Testnet
+              </p>
+            </div>
 
-        {/* Wallet Connect */}
-        <div className="max-w-md mx-auto mb-8 space-y-4">
-          <WalletButton />
-          
-          {/* SOL Gas Info */}
-          {connected && (
-            <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Fuel className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="text-sm font-medium">Gas Balance</p>
-                    {isCheckingBalance ? (
-                      <p className="text-xs text-muted-foreground">Checking...</p>
-                    ) : solBalance !== null ? (
-                      <div className="flex items-center gap-2">
-                        <p className="text-lg font-bold">
-                          {solBalance.toFixed(4)} SOL
-                        </p>
-                        {solBalance < MIN_SOL_BALANCE && (
-                          <Badge variant="destructive" className="text-xs">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Low
-                          </Badge>
+            {/* Right - Wallet & Balance */}
+            <div className="space-y-4 min-w-[320px]">
+              <WalletButton />
+              
+              {/* SOL Gas Info */}
+              {connected && (
+                <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Fuel className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Gas Balance</p>
+                        {isCheckingBalance ? (
+                          <p className="text-xs text-muted-foreground">Checking...</p>
+                        ) : solBalance !== null ? (
+                          <div className="flex items-center gap-2">
+                            <p className="text-lg font-bold">
+                              {solBalance.toFixed(4)} SOL
+                            </p>
+                            {solBalance < MIN_SOL_BALANCE && (
+                              <Badge variant="destructive" className="text-xs">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                Low
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">Unable to check</p>
                         )}
                       </div>
-                    ) : (
-                      <p className="text-xs text-muted-foreground">Unable to check</p>
-                    )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => window.open("https://faucet.testnet.carv.io", "_blank")}
+                      className="gap-2"
+                    >
+                      Get SOL
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
                   </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.open("https://faucet.testnet.carv.io", "_blank")}
-                  className="gap-2"
-                >
-                  Get SOL
-                  <ExternalLink className="h-3 w-3" />
-                </Button>
-              </div>
-              {solBalance !== null && solBalance < MIN_SOL_BALANCE && (
-                <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  Need at least {MIN_SOL_BALANCE} SOL for gas fees
-                </p>
+                  {solBalance !== null && solBalance < MIN_SOL_BALANCE && (
+                    <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" />
+                      Need at least {MIN_SOL_BALANCE} SOL for gas fees
+                    </p>
+                  )}
+                </Card>
               )}
-            </Card>
-          )}
-        </div>
+            </div>
+          </div>
+        </header>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {/* Left Column - Game */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <PriceDisplay onPriceUpdate={handlePriceUpdate} />
-              </div>
-              {connected && (
-                <Button
-                  onClick={handleCheckPredictions}
-                  variant="outline"
-                  size="sm"
-                  className="ml-4"
-                >
-                  Check Predictions
-                </Button>
-              )}
-            </div>
+            <PriceDisplay onPriceUpdate={handlePriceUpdate} />
             <PredictionButtons
               currentPrice={currentPrice} 
               onPredict={handlePrediction}
@@ -373,6 +364,7 @@ const Index = () => {
             <PredictionHistory 
               walletAddress={connected ? publicKey?.toString() || null : null}
               refreshTrigger={refreshHistory}
+              onCheckPredictions={connected ? handleCheckPredictions : undefined}
             />
           </div>
 

@@ -10,9 +10,10 @@ import { RevealCard } from "./RevealCard";
 interface PredictionHistoryProps {
   walletAddress: string | null;
   refreshTrigger: number;
+  onCheckPredictions?: () => void;
 }
 
-export const PredictionHistory = ({ walletAddress, refreshTrigger }: PredictionHistoryProps) => {
+export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredictions }: PredictionHistoryProps) => {
   const [predictions, setPredictions] = useState<any[]>([]);
   const [selectedPrediction, setSelectedPrediction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,7 +68,18 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger }: PredictionH
 
   return (
     <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
-      <h3 className="text-2xl font-bold mb-6">Your Predictions</h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-2xl font-bold">Your Predictions</h3>
+        {onCheckPredictions && (
+          <Button
+            onClick={onCheckPredictions}
+            variant="outline"
+            size="sm"
+          >
+            Check Predictions
+          </Button>
+        )}
+      </div>
       
       {isLoading ? (
         <div className="flex justify-center py-8">
