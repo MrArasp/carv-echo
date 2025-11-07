@@ -7,7 +7,6 @@ import { PredictionButtons } from "@/components/PredictionButtons";
 import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
 import { PredictionHistory } from "@/components/PredictionHistory";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Fuel, ExternalLink } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -354,18 +353,15 @@ const Index = () => {
                       <p className="text-[9px] text-muted-foreground">N/A</p>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.open("https://bridge.testnet.carv.io/home", "_blank", "noopener,noreferrer");
-                    }}
-                    className="h-6 w-6 p-0 hover:bg-primary/20 transition-colors cursor-pointer"
+                  <a
+                    href="https://bridge.testnet.carv.io/home"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-6 w-6 p-0 items-center justify-center rounded-md hover:bg-primary/20 transition-colors cursor-pointer"
                     title="Get SOL from Bridge"
                   >
                     <ExternalLink className="h-3 w-3 text-primary" />
-                  </Button>
+                  </a>
                 </div>
               </div>
             )}
