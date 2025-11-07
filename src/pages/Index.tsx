@@ -7,10 +7,9 @@ import { PredictionButtons } from "@/components/PredictionButtons";
 import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
 import { PredictionHistory } from "@/components/PredictionHistory";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Fuel, ExternalLink, AlertCircle } from "lucide-react";
+import { Fuel, ExternalLink } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -320,50 +319,54 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-8 relative">
+        <header className="mb-12 relative">
           {/* Wallet & Balance - Top Right Corner */}
-          <Card className="absolute top-0 right-0 p-1.5 bg-card/50 backdrop-blur-sm border-primary/20">
-            <div className="flex gap-2 items-center">
-              {/* Wallet */}
-              <div className="flex-shrink-0">
-                <WalletButton />
-              </div>
-              
-              {/* Balance */}
-              {connected && (
-                <div className="flex items-center gap-1.5 border-l border-primary/20 pl-2">
-                  <Fuel className="h-3 w-3 text-primary" />
-                  <div className="min-w-[80px]">
-                    <p className="text-[8px] font-medium">Gas</p>
+          <div className="absolute top-0 right-0 flex gap-2">
+            {/* Wallet Card */}
+            <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg">
+              <WalletButton />
+            </div>
+            
+            {/* Balance Card */}
+            {connected && (
+              <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg min-w-[140px]">
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary/20 rounded-lg p-1.5">
+                    <Fuel className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-wide">Gas Balance</p>
                     {isCheckingBalance ? (
-                      <p className="text-[8px] text-muted-foreground">...</p>
+                      <p className="text-[9px] text-muted-foreground animate-pulse">Loading...</p>
                     ) : solBalance !== null ? (
-                      <div className="flex items-center gap-1">
-                        <p className="text-[10px] font-bold">
-                          {solBalance.toFixed(3)} SOL
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-foreground">
+                          {solBalance.toFixed(3)}
                         </p>
+                        <span className="text-[9px] text-primary font-semibold">SOL</span>
                         {solBalance < MIN_SOL_BALANCE && (
-                          <Badge variant="destructive" className="text-[7px] py-0 px-0.5 h-2.5">
+                          <Badge variant="destructive" className="text-[7px] py-0 px-1 h-3.5 ml-1">
                             Low
                           </Badge>
                         )}
                       </div>
                     ) : (
-                      <p className="text-[8px] text-muted-foreground">N/A</p>
+                      <p className="text-[9px] text-muted-foreground">N/A</p>
                     )}
                   </div>
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => window.open("https://bridge.testnet.carv.io/home", "_blank")}
-                    className="h-5 w-5 p-0"
+                    className="h-6 w-6 p-0 hover:bg-primary/20 transition-colors"
+                    title="Get SOL from Bridge"
                   >
-                    <ExternalLink className="h-2 w-2" />
+                    <ExternalLink className="h-3 w-3 text-primary" />
                   </Button>
                 </div>
-              )}
-            </div>
-          </Card>
+              </div>
+            )}
+          </div>
 
           {/* Centered Title */}
           <div className="text-center pt-4">
