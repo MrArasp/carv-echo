@@ -320,31 +320,23 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-8 space-y-4">
-          {/* Centered Title - Top */}
-          <div className="text-center">
-            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
-              CARV Echo
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
-            </p>
-          </div>
-
-          {/* Wallet & Balance - Below Title */}
-          <div className="flex justify-end gap-2">
-            {/* Wallet Card */}
-            <WalletButton />
-            
-            {/* Balance Card */}
-            {connected && (
-              <Card className="p-2 bg-card/50 backdrop-blur-sm border-primary/20">
-                <div className="flex items-center gap-2">
-                  <Fuel className="h-3 w-3 text-primary" />
-                  <div className="flex-1 min-w-[100px]">
-                    <p className="text-[10px] font-medium">Gas</p>
+        <header className="mb-8 relative">
+          {/* Wallet & Balance - Top Right Corner */}
+          <Card className="absolute top-0 right-0 p-3 bg-card/50 backdrop-blur-sm border-primary/20">
+            <div className="flex gap-3">
+              {/* Wallet */}
+              <div className="flex-shrink-0">
+                <WalletButton />
+              </div>
+              
+              {/* Balance */}
+              {connected && (
+                <div className="flex items-center gap-2 border-l border-primary/20 pl-3">
+                  <Fuel className="h-4 w-4 text-primary" />
+                  <div className="min-w-[100px]">
+                    <p className="text-[10px] font-medium">Gas Balance</p>
                     {isCheckingBalance ? (
-                      <p className="text-[10px] text-muted-foreground">...</p>
+                      <p className="text-[10px] text-muted-foreground">Loading...</p>
                     ) : solBalance !== null ? (
                       <div className="flex items-center gap-1">
                         <p className="text-xs font-bold">
@@ -369,8 +361,18 @@ const Index = () => {
                     <ExternalLink className="h-2.5 w-2.5" />
                   </Button>
                 </div>
-              </Card>
-            )}
+              )}
+            </div>
+          </Card>
+
+          {/* Centered Title */}
+          <div className="text-center pt-4">
+            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
+              CARV Echo
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
+            </p>
           </div>
         </header>
 
