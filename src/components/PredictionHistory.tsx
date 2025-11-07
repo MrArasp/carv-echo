@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Lock } from "lucide-react";
+import { ExternalLink, Lock, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CountdownTimer } from "./CountdownTimer";
 import { RevealCard } from "./RevealCard";
@@ -73,9 +73,10 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
         {onCheckPredictions && (
           <Button
             onClick={onCheckPredictions}
-            variant="outline"
-            size="sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold glow-primary gap-2"
+            size="default"
           >
+            <RefreshCw className="h-4 w-4" />
             Check Predictions
           </Button>
         )}

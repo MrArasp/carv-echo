@@ -54,6 +54,34 @@ const Index = () => {
     checkBalance();
   }, [connected, publicKey]);
 
+  // Award 500 points welcome bonus on first connect
+  useEffect(() => {
+    const initializeUser = async () => {
+      if (!connected || !publicKey) return;
+
+      try {
+        const { data, error } = await supabase.functions.invoke('initialize-user', {
+          body: { walletAddress: publicKey.toString() }
+        });
+
+        if (error) {
+          console.error("Failed to initialize user:", error);
+          return;
+        }
+
+        if (data?.success && !data?.alreadyExists) {
+          toast.success("Welcome! 🎉", {
+            description: "You've received 500 points as a welcome bonus!",
+          });
+        }
+      } catch (error) {
+        console.error("Error initializing user:", error);
+      }
+    };
+
+    initializeUser();
+  }, [connected, publicKey]);
+
   const handlePriceUpdate = (newPrice: number) => {
     setCurrentPrice(newPrice);
   };
@@ -107,10 +135,10 @@ const Index = () => {
     // Check SOL balance for gas
     if (solBalance !== null && solBalance < MIN_SOL_BALANCE) {
       toast.error("Insufficient SOL for gas", {
-        description: "Get SOL from the faucet to continue",
+        description: "Get SOL from the bridge to continue",
         action: {
           label: "Get SOL",
-          onClick: () => window.open("https://faucet.testnet.carv.io", "_blank"),
+          onClick: () => window.open("https://bridge.testnet.carv.io/home", "_blank"),
         },
       });
       return;
@@ -119,8 +147,8 @@ const Index = () => {
     // Check for active prediction today
     const hasActivePrediction = await checkActivePrediction();
     if (hasActivePrediction) {
-      toast.error("شما یک پیش‌بینی فعال دارید!", {
-        description: "فقط یک پیش‌بینی در روز مجاز است"
+      toast.error("You already have an active prediction!", {
+        description: "Only one prediction per day is allowed"
       });
       return;
     }
@@ -282,68 +310,57 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-12">
-          <div className="flex items-start justify-between">
-            {/* Left - Title */}
-            <div>
-              <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
-                CARV Echo
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Daily 5% Prediction Game on $CARV • CARV SVM Testnet
-              </p>
-            </div>
-
-            {/* Right - Wallet & Balance */}
-            <div className="space-y-4 min-w-[320px]">
-              <WalletButton />
-              
-              {/* SOL Gas Info */}
-              {connected && (
-                <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Fuel className="h-5 w-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">Gas Balance</p>
-                        {isCheckingBalance ? (
-                          <p className="text-xs text-muted-foreground">Checking...</p>
-                        ) : solBalance !== null ? (
-                          <div className="flex items-center gap-2">
-                            <p className="text-lg font-bold">
-                              {solBalance.toFixed(4)} SOL
-                            </p>
-                            {solBalance < MIN_SOL_BALANCE && (
-                              <Badge variant="destructive" className="text-xs">
-                                <AlertCircle className="h-3 w-3 mr-1" />
-                                Low
-                              </Badge>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-muted-foreground">Unable to check</p>
+        <header className="mb-12 space-y-6">
+          {/* Top Bar - Wallet & Balance */}
+          <div className="flex justify-end gap-3">
+            {/* Wallet Card */}
+            <WalletButton />
+            
+            {/* Balance Card */}
+            {connected && (
+              <Card className="p-3 bg-card/50 backdrop-blur-sm border-primary/20 min-w-[200px]">
+                <div className="flex items-center gap-2">
+                  <Fuel className="h-4 w-4 text-primary" />
+                  <div className="flex-1">
+                    <p className="text-xs font-medium">Gas Balance</p>
+                    {isCheckingBalance ? (
+                      <p className="text-xs text-muted-foreground">Checking...</p>
+                    ) : solBalance !== null ? (
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold">
+                          {solBalance.toFixed(4)} SOL
+                        </p>
+                        {solBalance < MIN_SOL_BALANCE && (
+                          <Badge variant="destructive" className="text-xs py-0 px-1">
+                            Low
+                          </Badge>
                         )}
                       </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => window.open("https://faucet.testnet.carv.io", "_blank")}
-                      className="gap-2"
-                    >
-                      Get SOL
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Unable to check</p>
+                    )}
                   </div>
-                  {solBalance !== null && solBalance < MIN_SOL_BALANCE && (
-                    <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      Need at least {MIN_SOL_BALANCE} SOL for gas fees
-                    </p>
-                  )}
-                </Card>
-              )}
-            </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open("https://bridge.testnet.carv.io/home", "_blank")}
+                    className="h-7 px-2"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </div>
+
+          {/* Centered Title */}
+          <div className="text-center">
+            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
+              CARV Echo
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
+            </p>
           </div>
         </header>
 

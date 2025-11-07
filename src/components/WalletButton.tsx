@@ -9,26 +9,21 @@ export const WalletButton = () => {
   const { connected, publicKey } = useWallet();
 
   return (
-    <Card className="p-4 bg-card/50 backdrop-blur-sm border-primary/20">
-      <div className="flex flex-col gap-3">
-        <WalletMultiButton 
-          className="!bg-primary !text-primary-foreground hover:!bg-primary/90 !rounded-lg !h-12 !px-6 !font-bold glow-primary !transition-all" 
-        />
-        {connected && publicKey && (
-          <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <Badge variant="outline" className="text-xs font-mono">
-                {truncateAddress(publicKey.toString())}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2 text-success text-xs">
-              <CheckCircle2 className="h-4 w-4" />
-              <span>CARV SVM</span>
-            </div>
+    <Card className="p-3 bg-card/50 backdrop-blur-sm border-primary/20">
+      <WalletMultiButton 
+        className="!bg-primary !text-primary-foreground hover:!bg-primary/90 !rounded-lg !h-10 !px-4 !font-bold glow-primary !transition-all !text-sm" 
+      />
+      {connected && publicKey && (
+        <div className="flex items-center justify-between mt-2 px-1">
+          <Badge variant="outline" className="text-xs font-mono">
+            {truncateAddress(publicKey.toString())}
+          </Badge>
+          <div className="flex items-center gap-1 text-success text-xs">
+            <CheckCircle2 className="h-3 w-3" />
+            <span className="text-[10px]">CARV SVM</span>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </Card>
   );
 };
