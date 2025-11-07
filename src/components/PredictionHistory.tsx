@@ -26,14 +26,12 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
 
   const loadPredictions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('predictions')
-        .select('*')
-        .eq('wallet_address', walletAddress)
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.functions.invoke('get-predictions', {
+        body: { walletAddress }
+      });
 
       if (error) throw error;
-      setPredictions(data || []);
+      setPredictions(data?.predictions || []);
     } catch (error) {
       console.error("Error loading predictions:", error);
     } finally {

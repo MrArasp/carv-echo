@@ -89,18 +89,25 @@ const Index = () => {
   const checkActivePrediction = async () => {
     if (!publicKey) return false;
     
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    
-    const { data, error } = await supabase
-      .from('predictions')
-      .select('id')
-      .eq('wallet_address', publicKey.toString())
-      .eq('status', 'locked')
-      .gte('created_at', today.toISOString())
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase.functions.invoke('get-predictions', {
+        body: { walletAddress: publicKey.toString() }
+      });
+
+      if (error || !data?.predictions) return false;
+
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
       
-    return !!data;
+      const activePrediction = data.predictions.find((pred: any) => 
+        pred.status === 'locked' && new Date(pred.created_at) >= today
+      );
+      
+      return !!activePrediction;
+    } catch (error) {
+      console.error('Failed to check active prediction:', error);
+      return false;
+    }
   };
 
   const handleCheckPredictions = async () => {
@@ -265,21 +272,24 @@ const Index = () => {
         });
       }
 
-      // Save prediction to database with signature proof and hashed wallet
-      const { error: dbError } = await supabase.from('predictions').insert({
-        wallet_address: publicKey.toString(),
-        hashed_wallet: hashedWallet,
-        current_price: latestPrice,
-        prediction: direction,
-        target_price: parseFloat(aiData.targetPrice),
-        unlock_at: unlockAt.toISOString(),
-        ipfs_url: mintData?.ipfsUrl || null,
-        status: 'locked',
-        signature,
-        nonce,
+      // Save prediction via secure edge function
+      const { data: createData, error: createError } = await supabase.functions.invoke('create-prediction', {
+        body: {
+          walletAddress: publicKey.toString(),
+          hashedWallet: hashedWallet,
+          currentPrice: latestPrice,
+          prediction: direction,
+          targetPrice: parseFloat(aiData.targetPrice),
+          unlockAt: unlockAt.toISOString(),
+          ipfsUrl: mintData?.ipfsUrl || null,
+          signature,
+          nonce,
+        }
       });
 
-      if (dbError) throw dbError;
+      if (createError || !createData?.success) {
+        throw new Error(createData?.error || 'Failed to create prediction');
+      }
 
       toast.success("Prediction Created!", {
         description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved",

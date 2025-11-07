@@ -46,67 +46,24 @@ export const RevealCard = ({ prediction, onReveal }: RevealCardProps) => {
 
     setIsRevealing(true);
     const finalPriceNum = Number(finalPrice);
-    const currentPrice = Number(prediction.current_price);
-    const targetPrice = Number(prediction.target_price);
-
-    // Determine if prediction was correct
-    let isCorrect = false;
-    if (prediction.prediction === "UP") {
-      isCorrect = finalPriceNum >= targetPrice;
-    } else {
-      isCorrect = finalPriceNum <= targetPrice;
-    }
-
-    const points = isCorrect ? 10 : -10;
-    const status = isCorrect ? "correct" : "wrong";
 
     try {
-      // Update prediction
-      const { error: updateError } = await supabase
-        .from('predictions')
-        .update({
-          final_price: finalPriceNum,
-          status,
-          points,
-        })
-        .eq('id', prediction.id);
+      // Call secure edge function to update prediction
+      const { data, error } = await supabase.functions.invoke('update-prediction', {
+        body: {
+          predictionId: prediction.id,
+          walletAddress: prediction.wallet_address,
+          finalPrice: finalPriceNum,
+        }
+      });
 
-      if (updateError) throw updateError;
-
-      // Update or create leaderboard entry
-      const { data: existingEntry } = await supabase
-        .from('leaderboard')
-        .select('*')
-        .eq('wallet_address', prediction.wallet_address)
-        .maybeSingle();
-
-      if (existingEntry) {
-        const { error: leaderboardError } = await supabase
-          .from('leaderboard')
-          .update({
-            total_predictions: existingEntry.total_predictions + 1,
-            correct_predictions: existingEntry.correct_predictions + (isCorrect ? 1 : 0),
-            total_points: existingEntry.total_points + points,
-          })
-          .eq('wallet_address', prediction.wallet_address);
-
-        if (leaderboardError) throw leaderboardError;
-      } else {
-        const { error: insertError } = await supabase
-          .from('leaderboard')
-          .insert({
-            wallet_address: prediction.wallet_address,
-            total_predictions: 1,
-            correct_predictions: isCorrect ? 1 : 0,
-            total_points: points,
-          });
-
-        if (insertError) throw insertError;
+      if (error || !data?.success) {
+        throw new Error(data?.error || 'Failed to reveal prediction');
       }
 
       toast.success(
-        isCorrect ? "Correct Prediction! 🎉" : "Wrong Prediction ❌",
-        { description: isCorrect ? `+${points} points!` : `-10 points - Better luck next time!` }
+        data.isCorrect ? "Correct Prediction! 🎉" : "Wrong Prediction ❌",
+        { description: data.isCorrect ? `+${data.points} points!` : `-10 points - Better luck next time!` }
       );
 
       onReveal();

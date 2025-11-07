@@ -17,3 +17,12 @@ verify_jwt = false
 
 [functions.initialize-user]
 verify_jwt = false
+
+[functions.create-prediction]
+verify_jwt = false
+
+[functions.get-predictions]
+verify_jwt = false
+
+[functions.update-prediction]
+verify_jwt = false
