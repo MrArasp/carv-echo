@@ -6,13 +6,12 @@ export const WalletButton = () => {
   const { connected, publicKey } = useWallet();
 
   return (
-    <div className="relative z-50">
+    <div className="relative">
       <WalletMultiButton 
         className="!bg-gradient-to-r !from-primary !to-secondary hover:!opacity-90 !rounded-lg !h-7 !px-3 !font-bold !transition-all !text-[10px] !shadow-lg hover:!shadow-xl !border-0" 
-        style={{ position: 'relative', zIndex: 9999 }}
       />
       {connected && publicKey && (
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-success/20 border border-success/40 rounded px-1.5 py-0.5 pointer-events-none">
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-success/20 border border-success/40 rounded px-1.5 py-0.5 pointer-events-none z-10">
           <CheckCircle2 className="h-2 w-2 text-success" />
           <span className="text-[7px] font-medium text-success">Connected</span>
         </div>

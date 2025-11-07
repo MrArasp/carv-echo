@@ -86,4 +86,21 @@ All colors MUST be HSL.
   .animate-pulse-glow {
     animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+
+  /* Fix Wallet Adapter z-index issues */
+  .wallet-adapter-dropdown {
+    position: relative !important;
+  }
+  
+  .wallet-adapter-dropdown-list {
+    z-index: 99999 !important;
+  }
+  
+  .wallet-adapter-modal-wrapper {
+    z-index: 99999 !important;
+  }
+  
+  .wallet-adapter-modal {
+    z-index: 99998 !important;
+  }
 }
