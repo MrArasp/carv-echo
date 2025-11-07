@@ -357,8 +357,11 @@ const Index = () => {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => window.open("https://bridge.testnet.carv.io/home", "_blank")}
-                    className="h-6 w-6 p-0 hover:bg-primary/20 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.open("https://bridge.testnet.carv.io/home", "_blank", "noopener,noreferrer");
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-primary/20 transition-colors cursor-pointer"
                     title="Get SOL from Bridge"
                   >
                     <ExternalLink className="h-3 w-3 text-primary" />
