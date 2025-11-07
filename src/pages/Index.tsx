@@ -311,7 +311,17 @@ const Index = () => {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8 space-y-4">
-          {/* Top Bar - Wallet & Balance */}
+          {/* Centered Title - Top */}
+          <div className="text-center">
+            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
+              CARV Echo
+            </h1>
+            <p className="text-xl text-muted-foreground">
+              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
+            </p>
+          </div>
+
+          {/* Wallet & Balance - Below Title */}
           <div className="flex justify-end gap-2">
             {/* Wallet Card */}
             <WalletButton />
@@ -351,16 +361,6 @@ const Index = () => {
                 </div>
               </Card>
             )}
-          </div>
-
-          {/* Centered Title */}
-          <div className="text-center">
-            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
-              CARV Echo
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
-            </p>
           </div>
         </header>
 
