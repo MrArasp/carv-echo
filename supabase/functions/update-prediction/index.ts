@@ -11,6 +11,13 @@ interface UpdatePredictionRequest {
   finalPrice: number;
 }
 
+/**
+ * Anonymize data for logging - never log full wallet addresses
+ */
+const sanitizeForLog = (address: string): string => {
+  return `wallet-${address.slice(0, 4)}`;
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -31,10 +38,10 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the prediction
+    // Get the prediction (SECURITY: Only return needed fields, filter by wallet)
     const { data: prediction, error: fetchError } = await supabase
       .from('predictions')
-      .select('*')
+      .select('id, prediction, current_price, target_price, hashed_wallet, status')
       .eq('id', predictionId)
       .eq('wallet_address', walletAddress)
       .single();
@@ -66,7 +73,7 @@ Deno.serve(async (req) => {
     const points = isCorrect ? 10 : -10;
     const status = isCorrect ? 'correct' : 'wrong';
 
-    // Update prediction
+    // Update prediction (SECURITY: Use service role, validate ownership above)
     const { error: updateError } = await supabase
       .from('predictions')
       .update({
@@ -97,7 +104,7 @@ Deno.serve(async (req) => {
       // Don't fail the request, prediction was still updated
     }
 
-    console.log(`Prediction revealed for wallet ${walletAddress.substring(0, 4)}...: ${status}`);
+    console.log(`Prediction revealed for ${sanitizeForLog(walletAddress)}: ${status}`);
 
     return new Response(
       JSON.stringify({ 

@@ -5,6 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+/**
+ * Sanitize for logging - never log full addresses
+ */
+const sanitizeForLog = (address: string): string => {
+  return `wallet-${address.slice(0, 4)}`;
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -25,10 +32,10 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch predictions for the wallet
+    // SECURITY: Only fetch necessary fields, exclude sensitive data like signatures
     const { data, error } = await supabase
       .from('predictions')
-      .select('*')
+      .select('id, prediction, current_price, target_price, unlock_at, final_price, created_at, points, updated_at, status, ipfs_url')
       .eq('wallet_address', walletAddress)
       .order('created_at', { ascending: false });
 
@@ -39,6 +46,8 @@ Deno.serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
+
+    console.log(`Fetched ${data?.length || 0} predictions for ${sanitizeForLog(walletAddress)}`);
 
     return new Response(
       JSON.stringify({ predictions: data || [] }),

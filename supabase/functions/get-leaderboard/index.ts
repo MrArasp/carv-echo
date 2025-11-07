@@ -6,13 +6,14 @@ const corsHeaders = {
 }
 
 /**
- * Truncates a wallet address for safe display
- * Shows only first 4 and last 4 characters
+ * Anonymize hashed wallet for leaderboard display
+ * Takes an 8-character hash and shows first 4 + last 4
+ * Example: "2f069bb5" -> "2f06...9bb5"
  */
-const truncateAddress = (address: string | null): string => {
-  if (!address) return 'Unknown';
-  if (address.length <= 8) return address;
-  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+const anonymizeHash = (hash: string | null): string => {
+  if (!hash || hash.length < 8) return 'Unknown';
+  // Hash is already 8 chars from SHA256, show as "xxxx...xxxx"
+  return `${hash.slice(0, 4)}...${hash.slice(-4)}`;
 };
 
 Deno.serve(async (req) => {
@@ -26,10 +27,10 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch top 10 leaderboard entries
+    // Fetch top 10 leaderboard entries using HASHED wallet only
     const { data, error } = await supabase
       .from('leaderboard')
-      .select('wallet_address, total_points, correct_predictions, total_predictions')
+      .select('hashed_wallet, total_points, correct_predictions, total_predictions')
       .order('total_points', { ascending: false })
       .limit(10);
 
@@ -41,13 +42,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Return leaderboard with truncated addresses for privacy
+    // Return leaderboard with anonymized hashed addresses only
+    // SECURITY: Never expose full wallet addresses, only truncated hashes
     const safeLeaderboard = (data || []).map(entry => ({
-      wallet_address: truncateAddress(entry.wallet_address), // TRUNCATED for security
+      wallet_address: anonymizeHash(entry.hashed_wallet), // Display anonymized hash
       total_points: entry.total_points,
       correct_predictions: entry.correct_predictions,
       total_predictions: entry.total_predictions,
     }));
+
+    console.log(`Leaderboard fetched: ${safeLeaderboard.length} entries (anonymized)`);
 
     return new Response(
       JSON.stringify({ leaderboard: safeLeaderboard }),
