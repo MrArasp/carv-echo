@@ -3,10 +3,28 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { hashWalletAddress } from "@/lib/walletUtils";
 
 export const Leaderboard = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userHash, setUserHash] = useState<string | null>(null);
+  const { publicKey } = useWallet();
+
+  useEffect(() => {
+    const hashUserWallet = async () => {
+      if (publicKey) {
+        const hash = await hashWalletAddress(publicKey.toString());
+        const anonymized = `${hash.slice(0, 4)}...${hash.slice(-4)}`;
+        setUserHash(anonymized);
+      } else {
+        setUserHash(null);
+      }
+    };
+    
+    hashUserWallet();
+  }, [publicKey]);
 
   useEffect(() => {
     loadLeaderboard();
@@ -69,38 +87,50 @@ export const Leaderboard = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {leaders.map((leader, index) => (
-            <div
-              key={leader.id}
-              className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${
-                index < 3
-                  ? 'bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30'
-                  : 'bg-muted/30 border-primary/10'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {getRankIcon(index)}
-                  <div>
-                    <p className="font-mono text-sm font-bold">
-                      {leader.wallet_address}
-                    </p>
-                    <div className="flex gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {leader.correct_predictions}/{leader.total_predictions} correct
-                      </Badge>
+          {leaders.map((leader, index) => {
+            const isCurrentUser = userHash && leader.wallet_address === userHash;
+            return (
+              <div
+                key={leader.id}
+                className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${
+                  isCurrentUser
+                    ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/50 ring-2 ring-primary/30'
+                    : index < 3
+                    ? 'bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30'
+                    : 'bg-muted/30 border-primary/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {getRankIcon(index)}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono text-sm font-bold">
+                          {leader.wallet_address}
+                        </p>
+                        {isCurrentUser && (
+                          <Badge variant="default" className="text-xs bg-primary">
+                            شما
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {leader.correct_predictions}/{leader.total_predictions} correct
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-primary">
-                    {leader.total_points}
-                  </p>
-                  <p className="text-xs text-muted-foreground">points</p>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-primary">
+                      {leader.total_points}
+                    </p>
+                    <p className="text-xs text-muted-foreground">points</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Card>
