@@ -6,14 +6,13 @@ const corsHeaders = {
 }
 
 /**
- * Anonymize hashed wallet for leaderboard display
- * Takes an 8-character hash and shows first 4 + last 4
- * Example: "2f069bb5" -> "2f06...9bb5"
+ * Truncate wallet address for leaderboard display
+ * Shows first 4 + last 4 characters of actual wallet address
+ * Example: "GThu...hFMJ"
  */
-const anonymizeHash = (hash: string | null): string => {
-  if (!hash || hash.length < 8) return 'Unknown';
-  // Hash is already 8 chars from SHA256, show as "xxxx...xxxx"
-  return `${hash.slice(0, 4)}...${hash.slice(-4)}`;
+const truncateWallet = (address: string | null): string => {
+  if (!address || address.length < 8) return 'Unknown';
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 
 Deno.serve(async (req) => {
@@ -27,10 +26,10 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Fetch top 10 leaderboard entries using HASHED wallet only
+    // Fetch top 10 leaderboard entries using actual wallet address
     const { data, error } = await supabase
       .from('leaderboard')
-      .select('hashed_wallet, total_points, correct_predictions, total_predictions')
+      .select('wallet_address, total_points, correct_predictions, total_predictions')
       .order('total_points', { ascending: false })
       .limit(10);
 
@@ -42,16 +41,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Return leaderboard with anonymized hashed addresses only
-    // SECURITY: Never expose full wallet addresses, only truncated hashes
+    // Return leaderboard with truncated wallet addresses (first 4 + last 4 chars)
+    // SECURITY: Only expose truncated addresses for privacy
     const safeLeaderboard = (data || []).map(entry => ({
-      wallet_address: anonymizeHash(entry.hashed_wallet), // Display anonymized hash
+      wallet_address: truncateWallet(entry.wallet_address), // Display truncated address
       total_points: entry.total_points,
       correct_predictions: entry.correct_predictions,
       total_predictions: entry.total_predictions,
     }));
 
-    console.log(`Leaderboard fetched: ${safeLeaderboard.length} entries (anonymized)`);
+    console.log(`Leaderboard fetched: ${safeLeaderboard.length} entries (truncated)`);
 
     return new Response(
       JSON.stringify({ leaderboard: safeLeaderboard }),

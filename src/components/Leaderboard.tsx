@@ -4,26 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { hashWalletAddress } from "@/lib/walletUtils";
+import { truncateAddress } from "@/lib/walletUtils";
 
 export const Leaderboard = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userHash, setUserHash] = useState<string | null>(null);
+  const [userTruncatedAddress, setUserTruncatedAddress] = useState<string | null>(null);
   const { publicKey } = useWallet();
 
   useEffect(() => {
-    const hashUserWallet = async () => {
-      if (publicKey) {
-        const hash = await hashWalletAddress(publicKey.toString());
-        const anonymized = `${hash.slice(0, 4)}...${hash.slice(-4)}`;
-        setUserHash(anonymized);
-      } else {
-        setUserHash(null);
-      }
-    };
-    
-    hashUserWallet();
+    if (publicKey) {
+      const truncated = truncateAddress(publicKey.toString());
+      setUserTruncatedAddress(truncated);
+    } else {
+      setUserTruncatedAddress(null);
+    }
   }, [publicKey]);
 
   useEffect(() => {
@@ -88,7 +83,7 @@ export const Leaderboard = () => {
       ) : (
         <div className="space-y-3">
           {leaders.map((leader, index) => {
-            const isCurrentUser = userHash && leader.wallet_address === userHash;
+            const isCurrentUser = userTruncatedAddress && leader.wallet_address === userTruncatedAddress;
             return (
               <div
                 key={leader.id}
@@ -110,7 +105,7 @@ export const Leaderboard = () => {
                         </p>
                         {isCurrentUser && (
                           <Badge variant="default" className="text-xs bg-primary">
-                            شما
+                            You
                           </Badge>
                         )}
                       </div>
