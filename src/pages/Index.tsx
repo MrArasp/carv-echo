@@ -14,12 +14,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import bs58 from "bs58";
 import { hashWalletAddress, sanitizeAddressForLog } from "@/lib/walletUtils";
-
 const CARV_RPC = "https://rpc.testnet.carv.io/rpc";
 const MIN_SOL_BALANCE = 0.01;
-
 const Index = () => {
-  const { publicKey, connected, signMessage } = useWallet();
+  const {
+    publicKey,
+    connected,
+    signMessage
+  } = useWallet();
   const [currentPrice, setCurrentPrice] = useState(1.23);
   const [aiMessage, setAiMessage] = useState("");
   const [isLoadingAI, setIsLoadingAI] = useState(false);
@@ -35,7 +37,6 @@ const Index = () => {
         setSolBalance(null);
         return;
       }
-
       setIsCheckingBalance(true);
       try {
         const connection = new Connection(CARV_RPC, "confirmed");
@@ -48,7 +49,6 @@ const Index = () => {
         setIsCheckingBalance(false);
       }
     };
-
     checkBalance();
   }, [connected, publicKey]);
 
@@ -56,64 +56,62 @@ const Index = () => {
   useEffect(() => {
     const initializeUser = async () => {
       if (!connected || !publicKey) return;
-
       try {
-        const { data, error } = await supabase.functions.invoke('initialize-user', {
-          body: { walletAddress: publicKey.toString() }
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('initialize-user', {
+          body: {
+            walletAddress: publicKey.toString()
+          }
         });
-
         if (error) {
           console.error("Failed to initialize user:", error);
           return;
         }
-
         if (data?.success && !data?.alreadyExists) {
           toast.success("Welcome! 🎉", {
-            description: "You've received 500 points as a welcome bonus!",
+            description: "You've received 500 points as a welcome bonus!"
           });
         }
       } catch (error) {
         console.error("Error initializing user:", error);
       }
     };
-
     initializeUser();
   }, [connected, publicKey]);
-
   const handlePriceUpdate = (newPrice: number) => {
     setCurrentPrice(newPrice);
   };
-
   const checkActivePrediction = async () => {
     if (!publicKey) return false;
-    
     try {
-      const { data, error } = await supabase.functions.invoke('get-predictions', {
-        body: { walletAddress: publicKey.toString() }
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('get-predictions', {
+        body: {
+          walletAddress: publicKey.toString()
+        }
       });
-
       if (error || !data?.predictions) return false;
-
       const today = new Date();
       today.setUTCHours(0, 0, 0, 0);
-      
-      const activePrediction = data.predictions.find((pred: any) => 
-        pred.status === 'locked' && new Date(pred.created_at) >= today
-      );
-      
+      const activePrediction = data.predictions.find((pred: any) => pred.status === 'locked' && new Date(pred.created_at) >= today);
       return !!activePrediction;
     } catch (error) {
       console.error('Failed to check active prediction:', error);
       return false;
     }
   };
-
   const handleCheckPredictions = async () => {
     toast.loading("Checking predictions...");
     try {
-      const { data, error } = await supabase.functions.invoke('check-predictions');
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('check-predictions');
       toast.dismiss();
-      
       if (error) {
         toast.error("Failed to check predictions");
       } else {
@@ -125,13 +123,11 @@ const Index = () => {
       toast.error("Error checking predictions");
     }
   };
-
   const handlePrediction = async (direction: "UP" | "DOWN", price: number) => {
     if (!connected || !publicKey) {
       toast.error("Please connect your wallet first");
       return;
     }
-
     if (!signMessage) {
       toast.error("Wallet does not support message signing");
       return;
@@ -143,8 +139,8 @@ const Index = () => {
         description: "Get SOL from the bridge to continue",
         action: {
           label: "Get SOL",
-          onClick: () => window.open("https://bridge.testnet.carv.io/home", "_blank"),
-        },
+          onClick: () => window.open("https://bridge.testnet.carv.io/home", "_blank")
+        }
       });
       return;
     }
@@ -157,37 +153,39 @@ const Index = () => {
       });
       return;
     }
-
     setIsLoadingAI(true);
     setAiMessage("");
-
     try {
       // Step 1: Fetch latest price to ensure accuracy
-      const { data: priceData, error: priceError } = await supabase.functions.invoke('get-carv-price');
-      
+      const {
+        data: priceData,
+        error: priceError
+      } = await supabase.functions.invoke('get-carv-price');
       if (priceError) {
         toast.error("Failed to get current price");
         setIsLoadingAI(false);
         return;
       }
-      
       const latestPrice = priceData.price;
       setCurrentPrice(latestPrice);
-      
       toast.info(`Locking price at $${latestPrice.toFixed(4)}`);
 
       // Step 2: Get AI confirmation with latest price
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('grok-confirm', {
-        body: { currentPrice: latestPrice, prediction: direction }
+      const {
+        data: aiData,
+        error: aiError
+      } = await supabase.functions.invoke('grok-confirm', {
+        body: {
+          currentPrice: latestPrice,
+          prediction: direction
+        }
       });
-
       if (aiError) throw aiError;
       setAiMessage(aiData.confirmation);
 
       // Step 3: Generate nonce and create message to sign
       const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const message = `CARV Echo Prediction\nNonce: ${nonce}\nPrice: ${latestPrice}\nDirection: ${direction}\nTarget: ${aiData.targetPrice}`;
-      
       console.log("Wallet signing requested for prediction:", sanitizeAddressForLog(publicKey.toString()));
       toast.loading("Signing prediction with your wallet...");
 
@@ -208,7 +206,10 @@ const Index = () => {
 
       // Step 5: Verify signature with backend
       toast.loading("Verifying signature...");
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-prediction', {
+      const {
+        data: verifyData,
+        error: verifyError
+      } = await supabase.functions.invoke('verify-prediction', {
         body: {
           walletAddress: publicKey.toString(),
           prediction: direction,
@@ -216,12 +217,10 @@ const Index = () => {
           targetPrice: aiData.targetPrice,
           signature,
           nonce,
-          message,
+          message
         }
       });
-
       toast.dismiss();
-
       if (verifyError || !verifyData?.success) {
         console.error("Signature verification failed for", sanitizeAddressForLog(publicKey.toString()));
         toast.error(verifyData?.error || "Invalid signature - please reconnect your wallet");
@@ -242,36 +241,41 @@ const Index = () => {
       const metadata = {
         name: `CARV Echo Prediction #${Math.floor(Math.random() * 10000)}`,
         description: `Prediction: $CARV will go ${direction} 5% from $${latestPrice}`,
-        trader_id: hashedWallet, // Anonymous trader ID
+        trader_id: hashedWallet,
+        // Anonymous trader ID
         current_price: latestPrice,
         prediction: direction,
         target_price: aiData.targetPrice,
         unlock_at: unlockAt.toISOString(),
         status: "locked",
-        created_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
-
       setIsMinting(true);
 
       // Upload to IPFS with signature
-      const { data: mintData, error: mintError } = await supabase.functions.invoke('mint-nft', {
-        body: { 
+      const {
+        data: mintData,
+        error: mintError
+      } = await supabase.functions.invoke('mint-nft', {
+        body: {
           metadata,
           signature,
           nonce,
-          signedMessage: message,
+          signedMessage: message
         }
       });
-
       if (mintError) {
         console.error("IPFS upload failed");
         toast.warning("Prediction saved without IPFS", {
-          description: "NFT storage unavailable",
+          description: "NFT storage unavailable"
         });
       }
 
       // Save prediction via secure edge function
-      const { data: createData, error: createError } = await supabase.functions.invoke('create-prediction', {
+      const {
+        data: createData,
+        error: createError
+      } = await supabase.functions.invoke('create-prediction', {
         body: {
           walletAddress: publicKey.toString(),
           hashedWallet: hashedWallet,
@@ -281,18 +285,15 @@ const Index = () => {
           unlockAt: unlockAt.toISOString(),
           ipfsUrl: mintData?.ipfsUrl || null,
           signature,
-          nonce,
+          nonce
         }
       });
-
       if (createError || !createData?.success) {
         throw new Error(createData?.error || 'Failed to create prediction');
       }
-
       toast.success("Prediction Created!", {
-        description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved",
+        description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved"
       });
-
       setRefreshHistory(prev => prev + 1);
     } catch (error) {
       console.error("Prediction creation failed:", error instanceof Error ? error.message : 'Unknown error');
@@ -302,18 +303,13 @@ const Index = () => {
       setIsMinting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen relative overflow-hidden">
+  return <div className="min-h-screen relative overflow-hidden">
       {/* Hero Background */}
-      <div 
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: `url(${heroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      <div className="absolute inset-0 opacity-30" style={{
+      backgroundImage: `url(${heroBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }} />
       
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
@@ -322,54 +318,38 @@ const Index = () => {
           {/* Wallet & Balance - Top Right Corner */}
           <div className="absolute top-0 right-0 flex gap-2">
             {/* Wallet Card */}
-            <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg">
+            <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 p-2 shadow-lg mx-0 rounded-sm">
               <WalletButton />
             </div>
             
             {/* Balance Card */}
-            {connected && (
-              <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg min-w-[140px]">
+            {connected && <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg min-w-[140px]">
                 <div className="flex items-center gap-2">
                   <div className="bg-primary/20 rounded-lg p-1.5">
                     <Fuel className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-wide">Gas Balance</p>
-                    {isCheckingBalance ? (
-                      <p className="text-[9px] text-muted-foreground animate-pulse">Loading...</p>
-                    ) : solBalance !== null ? (
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-bold text-foreground">
+                    {isCheckingBalance ? <p className="text-[9px] text-muted-foreground animate-pulse">Loading...</p> : solBalance !== null ? <div className="flex items-center gap-1.5">
+                        <p className="text-xs text-foreground font-extrabold">
                           {solBalance.toFixed(3)}
                         </p>
                         <span className="text-[9px] text-primary font-semibold">SOL</span>
-                        {solBalance < MIN_SOL_BALANCE && (
-                          <Badge variant="destructive" className="text-[7px] py-0 px-1 h-3.5 ml-1">
+                        {solBalance < MIN_SOL_BALANCE && <Badge variant="destructive" className="text-[7px] py-0 px-1 h-3.5 ml-1">
                             Low
-                          </Badge>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-[9px] text-muted-foreground">N/A</p>
-                    )}
+                          </Badge>}
+                      </div> : <p className="text-[9px] text-muted-foreground">N/A</p>}
                   </div>
-                  <a
-                    href="https://bridge.testnet.carv.io/home"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-6 w-6 p-0 items-center justify-center rounded-md hover:bg-primary/20 transition-colors cursor-pointer"
-                    title="Get SOL from Bridge"
-                  >
+                  <a href="https://bridge.testnet.carv.io/home" target="_blank" rel="noopener noreferrer" className="inline-flex h-6 w-6 p-0 items-center justify-center rounded-md hover:bg-primary/20 transition-colors cursor-pointer" title="Get SOL from Bridge">
                     <ExternalLink className="h-3 w-3 text-primary" />
                   </a>
                 </div>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Centered Title */}
           <div className="text-center pt-4">
-            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow">
+            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow my-[50px]">
               CARV Echo
             </h1>
             <p className="text-xl text-muted-foreground">
@@ -379,24 +359,13 @@ const Index = () => {
         </header>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto my-[100px]">
           {/* Left Column - Game */}
           <div className="lg:col-span-2 space-y-8">
             <PriceDisplay onPriceUpdate={handlePriceUpdate} />
-            <PredictionButtons
-              currentPrice={currentPrice} 
-              onPredict={handlePrediction}
-              disabled={!connected || isLoadingAI || isMinting}
-            />
-            <AIConfirmation 
-              message={aiMessage} 
-              isLoading={isLoadingAI || isMinting}
-            />
-            <PredictionHistory 
-              walletAddress={connected ? publicKey?.toString() || null : null}
-              refreshTrigger={refreshHistory}
-              onCheckPredictions={connected ? handleCheckPredictions : undefined}
-            />
+            <PredictionButtons currentPrice={currentPrice} onPredict={handlePrediction} disabled={!connected || isLoadingAI || isMinting} />
+            <AIConfirmation message={aiMessage} isLoading={isLoadingAI || isMinting} />
+            <PredictionHistory walletAddress={connected ? publicKey?.toString() || null : null} refreshTrigger={refreshHistory} onCheckPredictions={connected ? handleCheckPredictions : undefined} />
           </div>
 
           {/* Right Column - Leaderboard */}
@@ -412,8 +381,6 @@ const Index = () => {
           </p>
         </footer>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
