@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.update-prediction]
 verify_jwt = false
+
+[functions.get-leaderboard]
+verify_jwt = false
