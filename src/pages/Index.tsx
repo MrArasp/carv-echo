@@ -310,43 +310,43 @@ const Index = () => {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
-        <header className="mb-12 space-y-6">
+        <header className="mb-8 space-y-4">
           {/* Top Bar - Wallet & Balance */}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-2">
             {/* Wallet Card */}
             <WalletButton />
             
             {/* Balance Card */}
             {connected && (
-              <Card className="p-3 bg-card/50 backdrop-blur-sm border-primary/20 min-w-[200px]">
+              <Card className="p-2 bg-card/50 backdrop-blur-sm border-primary/20">
                 <div className="flex items-center gap-2">
-                  <Fuel className="h-4 w-4 text-primary" />
-                  <div className="flex-1">
-                    <p className="text-xs font-medium">Gas Balance</p>
+                  <Fuel className="h-3 w-3 text-primary" />
+                  <div className="flex-1 min-w-[100px]">
+                    <p className="text-[10px] font-medium">Gas</p>
                     {isCheckingBalance ? (
-                      <p className="text-xs text-muted-foreground">Checking...</p>
+                      <p className="text-[10px] text-muted-foreground">...</p>
                     ) : solBalance !== null ? (
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold">
-                          {solBalance.toFixed(4)} SOL
+                      <div className="flex items-center gap-1">
+                        <p className="text-xs font-bold">
+                          {solBalance.toFixed(3)} SOL
                         </p>
                         {solBalance < MIN_SOL_BALANCE && (
-                          <Badge variant="destructive" className="text-xs py-0 px-1">
+                          <Badge variant="destructive" className="text-[8px] py-0 px-1 h-3">
                             Low
                           </Badge>
                         )}
                       </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground">Unable to check</p>
+                      <p className="text-[10px] text-muted-foreground">N/A</p>
                     )}
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => window.open("https://bridge.testnet.carv.io/home", "_blank")}
-                    className="h-7 px-2"
+                    className="h-6 w-6 p-0"
                   >
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-2.5 w-2.5" />
                   </Button>
                 </div>
               </Card>
