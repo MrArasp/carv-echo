@@ -322,8 +322,8 @@ const Index = () => {
         {/* Header */}
         <header className="mb-8 relative">
           {/* Wallet & Balance - Top Right Corner */}
-          <Card className="absolute top-0 right-0 p-3 bg-card/50 backdrop-blur-sm border-primary/20">
-            <div className="flex gap-3">
+          <Card className="absolute top-0 right-0 p-1.5 bg-card/50 backdrop-blur-sm border-primary/20">
+            <div className="flex gap-2 items-center">
               {/* Wallet */}
               <div className="flex-shrink-0">
                 <WalletButton />
@@ -331,34 +331,34 @@ const Index = () => {
               
               {/* Balance */}
               {connected && (
-                <div className="flex items-center gap-2 border-l border-primary/20 pl-3">
-                  <Fuel className="h-4 w-4 text-primary" />
-                  <div className="min-w-[100px]">
-                    <p className="text-[10px] font-medium">Gas Balance</p>
+                <div className="flex items-center gap-1.5 border-l border-primary/20 pl-2">
+                  <Fuel className="h-3 w-3 text-primary" />
+                  <div className="min-w-[80px]">
+                    <p className="text-[8px] font-medium">Gas</p>
                     {isCheckingBalance ? (
-                      <p className="text-[10px] text-muted-foreground">Loading...</p>
+                      <p className="text-[8px] text-muted-foreground">...</p>
                     ) : solBalance !== null ? (
                       <div className="flex items-center gap-1">
-                        <p className="text-xs font-bold">
+                        <p className="text-[10px] font-bold">
                           {solBalance.toFixed(3)} SOL
                         </p>
                         {solBalance < MIN_SOL_BALANCE && (
-                          <Badge variant="destructive" className="text-[8px] py-0 px-1 h-3">
+                          <Badge variant="destructive" className="text-[7px] py-0 px-0.5 h-2.5">
                             Low
                           </Badge>
                         )}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-muted-foreground">N/A</p>
+                      <p className="text-[8px] text-muted-foreground">N/A</p>
                     )}
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => window.open("https://bridge.testnet.carv.io/home", "_blank")}
-                    className="h-6 w-6 p-0"
+                    className="h-5 w-5 p-0"
                   >
-                    <ExternalLink className="h-2.5 w-2.5" />
+                    <ExternalLink className="h-2 w-2" />
                   </Button>
                 </div>
               )}
