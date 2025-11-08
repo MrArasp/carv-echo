@@ -98,7 +98,7 @@ All colors MUST be HSL.
   }
   
   .wallet-adapter-dropdown {
-    position: relative !important;
+    position: absolute !important;
     z-index: 99999 !important;
   }
   
