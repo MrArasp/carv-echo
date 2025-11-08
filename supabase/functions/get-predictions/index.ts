@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     // SECURITY: Only fetch necessary fields, exclude sensitive data like signatures
     const { data, error } = await supabase
       .from('predictions')
-      .select('id, prediction, current_price, target_price, unlock_at, final_price, created_at, points, updated_at, status, ipfs_url')
+      .select('id, prediction, current_price, target_price, unlock_at, final_price, created_at, points, updated_at, status, ipfs_url, wallet_address')
       .eq('wallet_address', walletAddress)
       .order('created_at', { ascending: false });
 
