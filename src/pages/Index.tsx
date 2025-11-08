@@ -3,6 +3,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { PriceChart } from "@/components/PriceChart";
 import { PredictionButtons } from "@/components/PredictionButtons";
 import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
@@ -366,6 +367,7 @@ const Index = () => {
           {/* Left Column - Game */}
           <div className="lg:col-span-2 space-y-8">
             <PriceDisplay onPriceUpdate={handlePriceUpdate} />
+            <PriceChart />
             <PredictionButtons currentPrice={currentPrice} onPredict={handlePrediction} disabled={!connected || isLoadingAI || isMinting} />
             <AIConfirmation message={aiMessage} isLoading={isLoadingAI || isMinting} />
             <PredictionHistory walletAddress={connected ? publicKey?.toString() || null : null} refreshTrigger={refreshHistory} onCheckPredictions={connected ? handleCheckPredictions : undefined} />
