@@ -8,6 +8,7 @@ import { truncateAddress } from "@/lib/walletUtils";
 
 export const Leaderboard = () => {
   const [leaders, setLeaders] = useState<any[]>([]);
+  const [userRank, setUserRank] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userTruncatedAddress, setUserTruncatedAddress] = useState<string | null>(null);
   const { publicKey } = useWallet();
@@ -30,14 +31,17 @@ export const Leaderboard = () => {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [publicKey]);
 
   const loadLeaderboard = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-leaderboard');
+      const { data, error } = await supabase.functions.invoke('get-leaderboard', {
+        body: { walletAddress: publicKey?.toString() || null }
+      });
 
       if (error) throw error;
       setLeaders(data?.leaderboard || []);
+      setUserRank(data?.userRank || null);
     } catch (error) {
       console.error("Error loading leaderboard");
     } finally {
@@ -82,11 +86,12 @@ export const Leaderboard = () => {
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="text-xs text-muted-foreground mb-2 px-2">Top 10 Players</div>
           {leaders.map((leader, index) => {
             const isCurrentUser = userTruncatedAddress && leader.wallet_address === userTruncatedAddress;
             return (
               <div
-                key={leader.id}
+                key={`top-${index}`}
                 className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${
                   isCurrentUser
                     ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/50 ring-2 ring-primary/30'
@@ -126,6 +131,48 @@ export const Leaderboard = () => {
               </div>
             );
           })}
+
+          {/* Show user's rank if they're outside top 10 */}
+          {userRank && (
+            <>
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-primary/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-card px-2 text-muted-foreground">Your Rank</span>
+                </div>
+              </div>
+              <div className="p-4 rounded-lg border bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/50 ring-2 ring-primary/30 transition-all hover:scale-[1.02]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-muted-foreground">#{userRank.rank}</span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono text-sm font-bold">
+                          {userRank.wallet_address}
+                        </p>
+                        <Badge variant="default" className="text-xs bg-primary">
+                          You
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {userRank.correct_predictions}/{userRank.total_predictions} correct
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-primary">
+                      {userRank.total_points}
+                    </p>
+                    <p className="text-xs text-muted-foreground">points</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </Card>

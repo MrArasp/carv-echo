@@ -21,6 +21,8 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const { walletAddress } = await req.json().catch(() => ({}));
+
     // Create Supabase client with service role
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -50,10 +52,52 @@ Deno.serve(async (req) => {
       total_predictions: entry.total_predictions,
     }));
 
+    let userRank = null;
+
+    // If walletAddress is provided, check if user is in top 10
+    if (walletAddress) {
+      const truncatedWallet = truncateWallet(walletAddress);
+      const isInTop10 = safeLeaderboard.some(entry => entry.wallet_address === truncatedWallet);
+
+      // If not in top 10, fetch user's rank
+      if (!isInTop10) {
+        // Get user's data
+        const { data: userData, error: userError } = await supabase
+          .from('leaderboard')
+          .select('wallet_address, total_points, correct_predictions, total_predictions')
+          .eq('wallet_address', walletAddress)
+          .single();
+
+        if (!userError && userData) {
+          // Calculate user's rank by counting how many users have more points
+          const { count, error: countError } = await supabase
+            .from('leaderboard')
+            .select('*', { count: 'exact', head: true })
+            .gt('total_points', userData.total_points);
+
+          if (!countError) {
+            userRank = {
+              rank: (count || 0) + 1,
+              wallet_address: truncateWallet(userData.wallet_address),
+              total_points: userData.total_points,
+              correct_predictions: userData.correct_predictions,
+              total_predictions: userData.total_predictions,
+            };
+          }
+        }
+      }
+    }
+
     console.log(`Leaderboard fetched: ${safeLeaderboard.length} entries (truncated)`);
+    if (userRank) {
+      console.log(`User rank: #${userRank.rank}`);
+    }
 
     return new Response(
-      JSON.stringify({ leaderboard: safeLeaderboard }),
+      JSON.stringify({ 
+        leaderboard: safeLeaderboard,
+        userRank 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
