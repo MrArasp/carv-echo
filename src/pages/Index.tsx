@@ -4,12 +4,7 @@ import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { PredictionButtons } from "@/components/PredictionButtons";
-import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
-import { PredictionHistory } from "@/components/PredictionHistory";
-import { Badge } from "@/components/ui/badge";
-import { Fuel, ExternalLink } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import bs58 from "bs58";
@@ -23,10 +18,8 @@ const Index = () => {
     signMessage
   } = useWallet();
   const [currentPrice, setCurrentPrice] = useState(1.23);
-  const [aiMessage, setAiMessage] = useState("");
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
-  const [refreshHistory, setRefreshHistory] = useState(0);
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
 
@@ -116,7 +109,6 @@ const Index = () => {
         toast.error("Failed to check predictions");
       } else {
         toast.success(`Checked ${data.processed} predictions`);
-        setRefreshHistory(prev => prev + 1);
       }
     } catch (error) {
       toast.dismiss();
@@ -154,7 +146,6 @@ const Index = () => {
       return;
     }
     setIsLoadingAI(true);
-    setAiMessage("");
     try {
       // Step 1: Fetch latest price to ensure accuracy
       const {
@@ -181,7 +172,6 @@ const Index = () => {
         }
       });
       if (aiError) throw aiError;
-      setAiMessage(aiData.confirmation);
 
       // Step 3: Generate nonce and create message to sign
       const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -294,7 +284,6 @@ const Index = () => {
       toast.success("Prediction Created!", {
         description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved"
       });
-      setRefreshHistory(prev => prev + 1);
     } catch (error) {
       console.error("Prediction creation failed:", error instanceof Error ? error.message : 'Unknown error');
       toast.error("Failed to create prediction");
@@ -303,80 +292,43 @@ const Index = () => {
       setIsMinting(false);
     }
   };
-  return <div className="min-h-screen relative overflow-hidden">
-      {/* Hero Background */}
-      <div className="absolute inset-0 opacity-30" style={{
-      backgroundImage: `url(${heroBg})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }} />
-      
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8">
+  return <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <header className="mb-12 relative">
-          {/* Wallet & Balance - Top Right Corner */}
-          <div className="absolute top-0 right-0 flex gap-2">
-            {/* Wallet Card */}
-            <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 p-2 shadow-lg mx-0 rounded-sm">
-              <WalletButton />
-            </div>
-            
-            {/* Balance Card */}
-            {connected && <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg min-w-[140px]">
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary/20 rounded-lg p-1.5">
-                    <Fuel className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-wide">Gas Balance</p>
-                    {isCheckingBalance ? <p className="text-[9px] text-muted-foreground animate-pulse">Loading...</p> : solBalance !== null ? <div className="flex items-center gap-1.5">
-                        <p className="text-xs text-foreground font-extrabold">
-                          {solBalance.toFixed(3)}
-                        </p>
-                        <span className="text-[9px] text-primary font-semibold">SOL</span>
-                        {solBalance < MIN_SOL_BALANCE && <Badge variant="destructive" className="text-[7px] py-0 px-1 h-3.5 ml-1">
-                            Low
-                          </Badge>}
-                      </div> : <p className="text-[9px] text-muted-foreground">N/A</p>}
-                  </div>
-                  <a href="https://bridge.testnet.carv.io/home" target="_blank" rel="noopener noreferrer" className="inline-flex h-6 w-6 p-0 items-center justify-center rounded-md hover:bg-primary/20 transition-colors cursor-pointer" title="Get SOL from Bridge">
-                    <ExternalLink className="h-3 w-3 text-primary" />
-                  </a>
-                </div>
-              </div>}
+        <header className="mb-8 relative">
+          {/* Wallet Button - Top Right */}
+          <div className="absolute top-0 right-0">
+            <WalletButton />
           </div>
 
           {/* Centered Title */}
-          <div className="text-center pt-4">
-            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow my-[50px]">
+          <div className="text-center pt-2">
+            <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               CARV Echo
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Daily 5% Prediction Game on $CARV • CARV SVM Testnet
             </p>
           </div>
         </header>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto my-[100px]">
+        <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {/* Left Column - Game */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             <PriceDisplay onPriceUpdate={handlePriceUpdate} />
             <PredictionButtons currentPrice={currentPrice} onPredict={handlePrediction} disabled={!connected || isLoadingAI || isMinting} />
-            <AIConfirmation message={aiMessage} isLoading={isLoadingAI || isMinting} />
-            <PredictionHistory walletAddress={connected ? publicKey?.toString() || null : null} refreshTrigger={refreshHistory} onCheckPredictions={connected ? handleCheckPredictions : undefined} />
           </div>
 
           {/* Right Column - Leaderboard */}
-          <div className="space-y-8">
+          <div>
             <Leaderboard />
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="mt-16 text-center text-muted-foreground">
-          <p className="text-sm">
+        <footer className="mt-12 text-center text-muted-foreground">
+          <p className="text-xs">
             Powered by CARV SVM Testnet • RPC: https://rpc.testnet.carv.io/rpc
           </p>
         </footer>

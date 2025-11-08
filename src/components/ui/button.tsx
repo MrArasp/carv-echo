@@ -16,8 +16,8 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         glow: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_40px_hsl(var(--glow-primary)/0.3)] hover:shadow-[0_0_60px_hsl(var(--glow-primary)/0.5)] transition-all duration-300",
-        "prediction-up": "bg-success text-success-foreground hover:bg-success/90 shadow-[0_0_30px_hsl(var(--success)/0.3)] hover:shadow-[0_0_50px_hsl(var(--success)/0.5)] transition-all duration-300",
-        "prediction-down": "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-[0_0_30px_hsl(var(--destructive)/0.3)] hover:shadow-[0_0_50px_hsl(var(--destructive)/0.5)] transition-all duration-300",
+        "prediction-up": "bg-card text-foreground border-2 border-primary hover:bg-primary/10 hover:border-primary hover:shadow-[0_0_30px_hsl(var(--primary)/0.5)] transition-all duration-300",
+        "prediction-down": "bg-card text-foreground border-2 border-pink hover:bg-pink/10 hover:border-pink hover:shadow-[0_0_30px_hsl(328_100%_54%/0.5)] transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",
