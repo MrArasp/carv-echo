@@ -13,8 +13,8 @@ serve(async (req) => {
   try {
     console.log('Fetching CARV history from Bybit...');
     
-    // Fetch 24h kline data (1 hour intervals)
-    const bybitUrl = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=CARVUSDT&interval=60&limit=24';
+    // Fetch 30 days of daily kline data
+    const bybitUrl = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=CARVUSDT&interval=D&limit=30';
     
     const response = await fetch(bybitUrl, {
       headers: {

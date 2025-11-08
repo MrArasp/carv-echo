@@ -20,8 +20,8 @@ export const PriceChart = () => {
   useEffect(() => {
     fetchHistory();
     
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchHistory, 5 * 60 * 1000);
+    // Refresh every 30 minutes for daily data
+    const interval = setInterval(fetchHistory, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -52,7 +52,7 @@ export const PriceChart = () => {
 
   const formatXAxis = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const formatTooltip = (value: any, name: string) => {
@@ -83,9 +83,9 @@ export const PriceChart = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-primary animate-pulse-glow" />
-          CARV/USDT 24H Chart
+          CARV/USDT 30D Chart
         </CardTitle>
-        <p className="text-xs text-muted-foreground">Last 24 hours • 1H intervals</p>
+        <p className="text-xs text-muted-foreground">Last 30 days • Daily intervals</p>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
