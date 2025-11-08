@@ -349,11 +349,14 @@ const Index = () => {
 
           {/* Centered Title */}
           <div className="text-center pt-4">
-            <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-pulse-glow my-[50px]">
+            <h1 className="text-7xl font-extrabold mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent my-[50px] tracking-tight">
               CARV Echo
             </h1>
-            <p className="text-xl text-muted-foreground">
-              Daily 5% Prediction Game on $CARV • CARV SVM Testnet
+            <p className="text-2xl text-foreground/90 font-light">
+              Daily 5% Prediction Game on <span className="font-semibold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">$CARV</span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              CARV SVM Testnet
             </p>
           </div>
         </header>
