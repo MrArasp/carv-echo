@@ -30,21 +30,21 @@ export const AIConfirmation = ({ message, isLoading }: AIConfirmationProps) => {
   if (!message && !isLoading) return null;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-secondary/20 to-primary/20 backdrop-blur-sm border-secondary/40 glow-secondary">
+    <Card className="p-6 bg-card/80 backdrop-blur-sm border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
       <div className="flex items-start gap-4">
-        <div className="p-2 rounded-full bg-secondary/20">
-          <Sparkles className="h-6 w-6 text-secondary animate-pulse-glow" />
+        <div className="p-2 rounded-full bg-primary/10">
+          <Sparkles className="h-6 w-6 text-primary animate-pulse" />
         </div>
         <div className="flex-1">
-          <p className="text-sm text-muted-foreground mb-1">Grok AI says:</p>
+          <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider">AI Confirmation</p>
           {isLoading ? (
             <div className="flex gap-1">
-              <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "0ms" }} />
-              <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "150ms" }} />
-              <span className="w-2 h-2 rounded-full bg-secondary animate-bounce" style={{ animationDelay: "300ms" }} />
+              <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+              <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+              <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
           ) : (
-            <p className="text-lg font-medium text-foreground">{displayedMessage}</p>
+            <p className="text-base font-medium text-foreground">{displayedMessage}</p>
           )}
         </div>
       </div>

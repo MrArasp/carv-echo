@@ -5,6 +5,8 @@ import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { PredictionButtons } from "@/components/PredictionButtons";
 import { Leaderboard } from "@/components/Leaderboard";
+import { AIConfirmation } from "@/components/AIConfirmation";
+import { PredictionHistory } from "@/components/PredictionHistory";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import bs58 from "bs58";
@@ -22,6 +24,8 @@ const Index = () => {
   const [isMinting, setIsMinting] = useState(false);
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [aiMessage, setAiMessage] = useState("");
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   // Check SOL balance when wallet connects
   useEffect(() => {
@@ -172,6 +176,9 @@ const Index = () => {
         }
       });
       if (aiError) throw aiError;
+      
+      // Store AI message
+      setAiMessage(aiData.message || aiData.confirmation || "Prediction confirmed!");
 
       // Step 3: Generate nonce and create message to sign
       const nonce = `predict_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -284,6 +291,9 @@ const Index = () => {
       toast.success("Prediction Created!", {
         description: mintData?.ipfsUrl ? "Verified & Stored on IPFS ✓" : "Verified & Saved"
       });
+      
+      // Trigger history refresh
+      setRefreshHistory(prev => prev + 1);
     } catch (error) {
       console.error("Prediction creation failed:", error instanceof Error ? error.message : 'Unknown error');
       toast.error("Failed to create prediction");
@@ -318,6 +328,18 @@ const Index = () => {
           <div className="lg:col-span-2 space-y-6">
             <PriceDisplay onPriceUpdate={handlePriceUpdate} />
             <PredictionButtons currentPrice={currentPrice} onPredict={handlePrediction} disabled={!connected || isLoadingAI || isMinting} />
+            
+            {/* AI Confirmation */}
+            <AIConfirmation message={aiMessage} isLoading={isLoadingAI} />
+            
+            {/* Prediction History */}
+            {connected && publicKey && (
+              <PredictionHistory 
+                walletAddress={publicKey.toString()}
+                refreshTrigger={refreshHistory}
+                onCheckPredictions={handleCheckPredictions}
+              />
+            )}
           </div>
 
           {/* Right Column - Leaderboard */}
