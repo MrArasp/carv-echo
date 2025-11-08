@@ -11,14 +11,30 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Fetching CARV history from Bybit...');
+    
     // Fetch 24h kline data (1 hour intervals)
     const bybitUrl = 'https://api.bybit.com/v5/market/kline?category=spot&symbol=CARVUSDT&interval=60&limit=24';
     
-    const response = await fetch(bybitUrl);
+    const response = await fetch(bybitUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Bybit API error: ${response.status} ${response.statusText}`);
+    }
+
     const data = await response.json();
+    console.log('Bybit response:', { retCode: data.retCode, resultCount: data.result?.list?.length });
 
     if (data.retCode !== 0) {
-      throw new Error('Failed to fetch historical data from Bybit');
+      throw new Error(`Bybit API returned error code: ${data.retCode} - ${data.retMsg}`);
+    }
+
+    if (!data.result?.list || data.result.list.length === 0) {
+      throw new Error('No historical data available from Bybit');
     }
 
     // Transform Bybit kline data to our format
@@ -32,6 +48,8 @@ serve(async (req) => {
       volume: parseFloat(candle[5]),
     }));
 
+    console.log(`Successfully fetched ${historyData.length} data points`);
+
     return new Response(
       JSON.stringify({ history: historyData }),
       {
@@ -43,10 +61,10 @@ serve(async (req) => {
     console.error('Error fetching CARV history:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: errorMessage, history: [] }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 200, // Return 200 with empty array so UI doesn't break
       }
     );
   }

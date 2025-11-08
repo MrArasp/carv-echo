@@ -27,14 +27,22 @@ export const PriceChart = () => {
 
   const fetchHistory = async () => {
     try {
+      console.log('Fetching price history...');
       const { data, error } = await supabase.functions.invoke('get-carv-history');
       
       if (error) {
         console.error("Error fetching history:", error);
+        setIsLoading(false);
         return;
       }
 
-      setHistoryData(data.history);
+      console.log('History data received:', data);
+
+      if (data?.history && data.history.length > 0) {
+        setHistoryData(data.history);
+      } else {
+        console.warn('No history data available');
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
