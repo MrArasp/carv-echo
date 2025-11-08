@@ -318,10 +318,9 @@ const Index = () => {
         <header className="mb-12 relative">
           {/* Modern Wallet & Balance Display - Top Right */}
           <div className="absolute top-0 right-0">
-            {connected ? (
-              <div className="group relative">
+            {connected ? <div className="group relative mx-[25px]">
                 {/* Main Container */}
-                <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02] min-w-[320px]">
+                <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02] min-w-[320px] my-[100px] mx-[20px]">
                   {/* Wallet Section */}
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-primary/10">
                     <div className="relative">
@@ -349,36 +348,22 @@ const Index = () => {
                       </div>
                       <div className="flex-1">
                         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Gas Balance</p>
-                        {isCheckingBalance ? (
-                          <div className="flex items-center gap-2">
+                        {isCheckingBalance ? <div className="flex items-center gap-2">
                             <div className="h-3 w-16 bg-muted/30 rounded animate-pulse"></div>
-                          </div>
-                        ) : solBalance !== null ? (
-                          <div className="flex items-center gap-2">
+                          </div> : solBalance !== null ? <div className="flex items-center gap-2">
                             <p className="text-xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                               {solBalance.toFixed(3)}
                             </p>
                             <span className="text-xs font-bold text-accent">SOL</span>
-                            {solBalance < MIN_SOL_BALANCE && (
-                              <Badge variant="destructive" className="text-[9px] py-0.5 px-2 animate-pulse">
+                            {solBalance < MIN_SOL_BALANCE && <Badge variant="destructive" className="text-[9px] py-0.5 px-2 animate-pulse">
                                 Low
-                              </Badge>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">N/A</p>
-                        )}
+                              </Badge>}
+                          </div> : <p className="text-sm text-muted-foreground">N/A</p>}
                       </div>
                     </div>
 
                     {/* Bridge Link Button */}
-                    <a 
-                      href="https://bridge.testnet.carv.io/home" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="group/link relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 hover:border-primary/60 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
-                      title="Get SOL from Bridge"
-                    >
+                    <a href="https://bridge.testnet.carv.io/home" target="_blank" rel="noopener noreferrer" className="group/link relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 hover:border-primary/60 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]" title="Get SOL from Bridge">
                       <ExternalLink className="h-4 w-4 text-primary group-hover/link:text-secondary transition-colors" />
                     </a>
                   </div>
@@ -386,25 +371,21 @@ const Index = () => {
                   {/* Decorative Gradient Line */}
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-primary to-accent rounded-b-2xl opacity-50"></div>
                 </div>
-              </div>
-            ) : (
-              <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02]">
+              </div> : <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02]">
                 <WalletButton />
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Centered Title */}
-          <div className="text-center pt-4">
-            <h1 className="text-7xl font-extrabold mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent my-[50px] tracking-tight animate-fade-in">
-              CARV Echo
-            </h1>
-            <p className="text-2xl text-foreground/90 font-light animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              Daily 5% Prediction Game on <span className="font-semibold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">$CARV</span>
+          <div className="text-center pt-4 mx-0">
+            <h1 className="mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text my-[50px] tracking-tight animate-fade-in text-left text-7xl font-extrabold text-violet-600">   CARV Echo</h1>
+            <p style={{
+            animationDelay: '0.1s'
+          }} className="text-2xl text-foreground/90 font-light animate-fade-in text-left">         Daily 5% Prediction Game on $CARV<span className="font-semibold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">$CARV</span>
             </p>
-            <p className="text-sm text-muted-foreground mt-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              CARV SVM Testnet
-            </p>
+            <p style={{
+            animationDelay: '0.2s'
+          }} className="text-sm text-muted-foreground mt-2 animate-fade-in text-left">                CARV SVM Testnet</p>
           </div>
         </header>
 
