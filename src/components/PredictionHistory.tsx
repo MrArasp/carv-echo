@@ -65,18 +65,17 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
   }
 
   return (
-    <Card className="p-6 bg-card/50 backdrop-blur-sm border-purple-500/20 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+    <Card className="p-6 bg-card/50 backdrop-blur-sm border-primary/20">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold">Your Predictions</h3>
+        <h3 className="text-2xl font-bold">Your Predictions</h3>
         {onCheckPredictions && (
           <Button
             onClick={onCheckPredictions}
-            variant="outline"
-            className="border-primary/40 hover:border-primary hover:bg-primary/10 gap-2"
-            size="sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold glow-primary gap-2"
+            size="default"
           >
             <RefreshCw className="h-4 w-4" />
-            Check
+            Check Predictions
           </Button>
         )}
       </div>
@@ -90,43 +89,40 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
           No predictions yet. Make your first prediction!
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {predictions.map((pred) => (
             <div
               key={pred.id}
-              className="p-3 rounded-lg bg-card/40 border border-purple-500/20 hover:border-purple-500/40 transition-all"
+              className="p-4 rounded-lg bg-muted/30 border border-primary/10 hover:border-primary/30 transition-all"
             >
-              <div className="flex items-center justify-between mb-2">
-                <Badge 
-                  variant={pred.prediction === "UP" ? "default" : "destructive"}
-                  className={pred.prediction === "UP" ? "bg-primary/20 text-primary border-primary/40" : "bg-pink-500/20 text-pink-500 border-pink-500/40"}
-                >
+              <div className="flex items-center justify-between mb-3">
+                <Badge variant={pred.prediction === "UP" ? "default" : "destructive"}>
                   {pred.prediction} 5%
                 </Badge>
                 {pred.status === 'locked' && (
                   <Lock className="h-4 w-4 text-muted-foreground" />
                 )}
                 {pred.status === 'correct' && (
-                  <Badge className="bg-primary/20 text-primary border-primary/40">+{pred.points} pts</Badge>
+                  <Badge className="bg-success">+{pred.points} pts</Badge>
                 )}
                 {pred.status === 'wrong' && (
-                  <Badge className="bg-pink-500/20 text-pink-500 border-pink-500/40">{pred.points} pts</Badge>
+                  <Badge variant="destructive">{pred.points} pts</Badge>
                 )}
               </div>
 
-              <div className="space-y-1 text-xs mb-2">
+              <div className="space-y-2 text-sm mb-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Start:</span>
-                  <span className="font-mono text-foreground">${pred.current_price}</span>
+                  <span className="font-mono">${pred.current_price}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Target:</span>
-                  <span className="font-mono text-foreground">${pred.target_price}</span>
+                  <span className="font-mono">${pred.target_price}</span>
                 </div>
                 {pred.final_price && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Final:</span>
-                    <span className="font-mono text-foreground">${pred.final_price}</span>
+                    <span className="font-mono">${pred.final_price}</span>
                   </div>
                 )}
               </div>
@@ -138,7 +134,7 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
                     onClick={() => setSelectedPrediction(pred)}
                     variant="outline"
                     size="sm"
-                    className="w-full mt-2 border-primary/40 hover:border-primary hover:bg-primary/10"
+                    className="w-full mt-3"
                     disabled={new Date(pred.unlock_at) > new Date()}
                   >
                     {new Date(pred.unlock_at) > new Date() ? "Locked" : "Reveal"}
@@ -150,11 +146,11 @@ export const PredictionHistory = ({ walletAddress, refreshTrigger, onCheckPredic
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full mt-1 text-xs"
+                  className="w-full mt-2"
                   onClick={() => window.open(pred.ipfs_url, '_blank')}
                 >
-                  <ExternalLink className="h-3 w-3 mr-1" />
-                  IPFS
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View on IPFS
                 </Button>
               )}
             </div>

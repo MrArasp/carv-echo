@@ -48,25 +48,40 @@ export const PriceDisplay = ({ onPriceUpdate }: PriceDisplayProps) => {
   }, []);
 
   return (
-    <Card className="p-8 bg-card border-accent/40 glow-purple">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
-          <h3 className="text-lg font-semibold text-muted-foreground">
-            Current $CARV Price
-          </h3>
+    <Card className="p-6 bg-gradient-to-br from-card/80 to-card/50 backdrop-blur-sm border-primary/20 glow-primary">
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-5 w-5 text-primary animate-pulse-glow" />
+            <h3 className="text-lg font-semibold text-muted-foreground">
+              Current $CARV Price
+            </h3>
+          </div>
+          <p className="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            ${price.toFixed(4)}
+          </p>
         </div>
-        <p className="text-7xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          ${price.toFixed(4)}
+        <div className="text-right space-y-2">
+          <p className="text-xs text-muted-foreground">Last Updated</p>
+          <p className="text-sm font-mono text-muted-foreground">
+            {timestamp.toLocaleTimeString()}
+          </p>
+          <Button
+            onClick={fetchPrice}
+            disabled={isRefreshing}
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+      </div>
+      <div className="mt-4 pt-4 border-t border-primary/10">
+        <p className="text-xs text-muted-foreground text-center">
+          Live data from Bybit • CARV/USDT • Updates every 10s
         </p>
-        <div className="space-y-1">
-          <p className="text-xs text-muted-foreground">
-            Last Updated: {timestamp.toLocaleTimeString()}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Live data from Bybit • CARV/USDT • Updates every 10s
-          </p>
-        </div>
       </div>
     </Card>
   );
