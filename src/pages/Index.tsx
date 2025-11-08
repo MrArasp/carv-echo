@@ -316,47 +316,93 @@ const Index = () => {
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-12 relative">
-          {/* Wallet & Balance - Top Right Corner */}
-          <div className="absolute top-0 right-0 flex gap-2">
-            {/* Wallet Card */}
-            <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 p-2 shadow-lg mx-0 rounded-sm">
-              <WalletButton />
-            </div>
-            
-            {/* Balance Card */}
-            {connected && <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md border border-primary/30 rounded-xl p-2 shadow-lg min-w-[140px]">
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary/20 rounded-lg p-1.5">
-                    <Fuel className="h-3.5 w-3.5 text-primary" />
+          {/* Modern Wallet & Balance Display - Top Right */}
+          <div className="absolute top-0 right-0">
+            {connected ? (
+              <div className="group relative">
+                {/* Main Container */}
+                <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02] min-w-[320px]">
+                  {/* Wallet Section */}
+                  <div className="flex items-center gap-3 mb-3 pb-3 border-b border-primary/10">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full blur-md opacity-50 animate-pulse"></div>
+                      <div className="relative bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full p-2 border border-primary/30">
+                        <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Connected Wallet</p>
+                      <WalletButton />
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-wide">Gas Balance</p>
-                    {isCheckingBalance ? <p className="text-[9px] text-muted-foreground animate-pulse">Loading...</p> : solBalance !== null ? <div className="flex items-center gap-1.5">
-                        <p className="text-xs text-foreground font-extrabold">
-                          {solBalance.toFixed(3)}
-                        </p>
-                        <span className="text-[9px] text-primary font-semibold">SOL</span>
-                        {solBalance < MIN_SOL_BALANCE && <Badge variant="destructive" className="text-[7px] py-0 px-1 h-3.5 ml-1">
-                            Low
-                          </Badge>}
-                      </div> : <p className="text-[9px] text-muted-foreground">N/A</p>}
+
+                  {/* Balance Section */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-accent to-primary rounded-lg blur-sm opacity-40"></div>
+                        <div className="relative bg-gradient-to-br from-accent/20 to-primary/20 rounded-lg p-2 border border-accent/30">
+                          <Fuel className="h-5 w-5 text-accent" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Gas Balance</p>
+                        {isCheckingBalance ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-3 w-16 bg-muted/30 rounded animate-pulse"></div>
+                          </div>
+                        ) : solBalance !== null ? (
+                          <div className="flex items-center gap-2">
+                            <p className="text-xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+                              {solBalance.toFixed(3)}
+                            </p>
+                            <span className="text-xs font-bold text-accent">SOL</span>
+                            {solBalance < MIN_SOL_BALANCE && (
+                              <Badge variant="destructive" className="text-[9px] py-0.5 px-2 animate-pulse">
+                                Low
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">N/A</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bridge Link Button */}
+                    <a 
+                      href="https://bridge.testnet.carv.io/home" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="group/link relative flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 hover:border-primary/60 transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]"
+                      title="Get SOL from Bridge"
+                    >
+                      <ExternalLink className="h-4 w-4 text-primary group-hover/link:text-secondary transition-colors" />
+                    </a>
                   </div>
-                  <a href="https://bridge.testnet.carv.io/home" target="_blank" rel="noopener noreferrer" className="inline-flex h-6 w-6 p-0 items-center justify-center rounded-md hover:bg-primary/20 transition-colors cursor-pointer" title="Get SOL from Bridge">
-                    <ExternalLink className="h-3 w-3 text-primary" />
-                  </a>
+
+                  {/* Decorative Gradient Line */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-primary to-accent rounded-b-2xl opacity-50"></div>
                 </div>
-              </div>}
+              </div>
+            ) : (
+              <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02]">
+                <WalletButton />
+              </div>
+            )}
           </div>
 
           {/* Centered Title */}
           <div className="text-center pt-4">
-            <h1 className="text-7xl font-extrabold mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent my-[50px] tracking-tight">
+            <h1 className="text-7xl font-extrabold mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text text-transparent my-[50px] tracking-tight animate-fade-in">
               CARV Echo
             </h1>
-            <p className="text-2xl text-foreground/90 font-light">
+            <p className="text-2xl text-foreground/90 font-light animate-fade-in" style={{ animationDelay: '0.1s' }}>
               Daily 5% Prediction Game on <span className="font-semibold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">$CARV</span>
             </p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               CARV SVM Testnet
             </p>
           </div>
