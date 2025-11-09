@@ -381,7 +381,7 @@ const Index = () => {
             <h1 className="mb-4 bg-gradient-to-r from-secondary via-primary to-accent bg-clip-text my-[50px] tracking-tight animate-fade-in text-left text-7xl font-extrabold text-violet-600">   CARV Echo</h1>
             <p style={{
             animationDelay: '0.1s'
-          }} className="text-2xl text-foreground/90 font-light animate-fade-in text-left">         Daily 5% Prediction Game on $CARV<span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent font-bold"> $CARV</span>
+          }} className="text-2xl text-foreground/90 font-light animate-fade-in text-left">         Daily 5% Prediction Game on $CARV<span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent font-bold"> </span>
             </p>
             <p style={{
             animationDelay: '0.2s'
