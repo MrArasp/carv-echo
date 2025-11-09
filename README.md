@@ -1,73 +1,27 @@
-# Welcome to your Lovable project
+Project Idea and Goal
 
-## Project info
+The idea behind this platform is to combine CARV cryptocurrency price prediction with a blockchain-based scoring and ranking mechanism.
 
-**URL**: https://lovable.dev/projects/68a6e642-d2b4-43f5-9799-bcb1a58daedb
+Our goal is to create a transparent, engaging, and competitive environment where users can test their analytical insight into the CARV market and earn points and higher ranks for accurate predictions.
 
-## How can I edit this code?
+In essence, this project is a blockchain-based analytical prediction game that offers users both an educational and competitive experience, while generating valuable behavioral data from the collective analysis of the CARV community.
 
-There are several ways of editing your application.
+How It Works
 
-**Use Lovable**
+Visit the platform and connect your wallet.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/68a6e642-d2b4-43f5-9799-bcb1a58daedb) and start prompting.
+In the daily prediction section, choose whether you believe the CARV price will increase or decrease by more than 5% by 00:00 UTC compared to the moment of your prediction.
 
-Changes made via Lovable will be committed automatically to this repo.
+Your prediction is recorded as a transaction on the CARV token network, ensuring transparency and immutability.
 
-**Use your preferred IDE**
+At the end of each day, the system automatically evaluates all predictions.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If your prediction is correct, you earn points.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Based on your total points and prediction accuracy, you will appear on the Ranking Board.
 
-Follow these steps:
+Ranking and Rewards System
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/68a6e642-d2b4-43f5-9799-bcb1a58daedb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Each user earns points based on prediction accuracy, daily activity, and participation level.
+User rankings are updated daily and monthly.
+Top performers can receive special rewards such as exclusive NFTs, honor badges, or KARO tokens.
