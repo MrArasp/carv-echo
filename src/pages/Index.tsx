@@ -317,7 +317,7 @@ const Index = () => {
         {/* Header */}
         <header className="mb-12 relative">
           {/* Modern Wallet & Balance Display - Top Right */}
-          <div className="absolute top-0 right-0 mx-[50px] my-[25px]">
+          <div className="absolute top-0 right-0 my-[25px] mx-[45px]">
             {connected ? <div className="group relative mx-[25px]">
                 {/* Main Container */}
                 <div className="bg-gradient-to-br from-card/90 via-card/80 to-card/70 backdrop-blur-xl border-2 border-primary/20 rounded-2xl p-4 shadow-2xl hover:shadow-[0_0_40px_hsl(var(--primary)/0.3)] transition-all duration-300 hover:scale-[1.02] min-w-[320px] my-[100px] mx-[20px]">
