@@ -23,8 +23,5 @@ In essence, this project is a **blockchain-based analytical prediction game** th
 
 Each user earns points based on prediction accuracy, daily activity, and participation level.
 User rankings are updated daily and monthly.
-Top performers can receive special rewards such as **exclusive NFTs**, **honor badges**, or **KARO tokens**.
+Top performers can receive special rewards such as **exclusive NFTs**, **honor badges**, or **CARV tokens**.
 
----
-
-آ
