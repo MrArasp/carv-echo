@@ -7,7 +7,7 @@ const Landing = () => {
   const navigate = useNavigate();
 
   const steps = [
-    { icon: Wallet, text: "Connect your wallet" },
+    { icon: Wallet, text: "Connect using Backpack wallet with CARV RPC", detail: "https://rpc.testnet.carv.io/rpc" },
     { icon: TrendingUp, text: "Choose prediction direction (±10%)" },
     { icon: Shield, text: "Recorded on CARV blockchain" },
     { icon: Clock, text: "Automatic daily evaluation at 00:00 UTC" },
@@ -94,6 +94,9 @@ const Landing = () => {
                         <Icon className="w-5 h-5 text-accent" />
                         <p className="text-foreground font-medium">{step.text}</p>
                       </div>
+                      {step.detail && (
+                        <p className="text-xs text-muted-foreground mt-1 break-all">{step.detail}</p>
+                      )}
                     </div>
                   </div>
                 );
