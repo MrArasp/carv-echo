@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useNavigate } from "react-router-dom";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletButton } from "@/components/WalletButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
@@ -9,7 +10,8 @@ import { AIConfirmation } from "@/components/AIConfirmation";
 import { Leaderboard } from "@/components/Leaderboard";
 import { PredictionHistory } from "@/components/PredictionHistory";
 import { Badge } from "@/components/ui/badge";
-import { Fuel, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Fuel, ExternalLink, Home } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,6 +20,7 @@ import { hashWalletAddress, sanitizeAddressForLog } from "@/lib/walletUtils";
 const CARV_RPC = "https://rpc.testnet.carv.io/rpc";
 const MIN_SOL_BALANCE = 0.01;
 const Index = () => {
+  const navigate = useNavigate();
   const {
     publicKey,
     connected,
@@ -316,6 +319,19 @@ const Index = () => {
       <div className="relative z-10 container mx-auto px-4 py-8 animate-fade-in">
         {/* Header */}
         <header className="mb-12 relative">
+          {/* Home Button - Top Left */}
+          <div className="absolute top-0 left-0">
+            <Button
+              onClick={() => navigate("/")}
+              variant="outline"
+              size="lg"
+              className="gap-2 bg-card/80 backdrop-blur-md border-primary/20 hover:border-primary/40 hover:bg-card/90 transition-all"
+            >
+              <Home className="w-5 h-5" />
+              Home
+            </Button>
+          </div>
+
           {/* Modern Wallet & Balance Display - Top Right */}
           <div className="absolute top-0 right-0">
             {connected ? <div className="group relative mx-[25px]">
