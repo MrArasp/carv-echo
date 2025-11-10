@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,6 @@ import { Target, Wallet, TrendingUp, Shield, Clock, Award, Trophy, Gift, Badge a
 
 const Landing = () => {
   const navigate = useNavigate();
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const handleStartPrediction = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      navigate("/prediction");
-    }, 300);
-  };
 
   const steps = [
     { icon: Wallet, text: "Connect your wallet" },
@@ -41,7 +32,7 @@ const Landing = () => {
       <div className="absolute inset-0 bg-gradient-hero opacity-60 z-0" />
       <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent z-0" />
 
-      <div className={`relative z-10 container mx-auto px-4 py-12 max-w-6xl ${isTransitioning ? 'animate-fade-out' : 'animate-fade-in'}`}>
+      <div className="relative z-10 container mx-auto px-4 py-12 max-w-6xl animate-fade-in">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
@@ -51,11 +42,10 @@ const Landing = () => {
             Blockchain-Based Price Prediction Game
           </p>
           <Button
-            onClick={handleStartPrediction}
+            onClick={() => navigate("/prediction")}
             size="lg"
             variant="glow"
             className="text-xl px-12 py-6 h-auto group"
-            disabled={isTransitioning}
           >
             Start Prediction
             <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
