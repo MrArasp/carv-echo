@@ -10,7 +10,7 @@ In essence, this project is a **blockchain-based analytical prediction game** th
 
 **How It Works**
 
-1. Visit the platform and connect your wallet.
+1. Connect using Backpack wallet with CARV RPC : https://rpc.testnet.carv.io/rpc
 2. In the daily prediction section, choose whether you believe the CARV price will increase or decrease by more than 5% by 00:00 UTC compared to the moment of your prediction.
 3. Your prediction is recorded as a transaction on the CARV token network, ensuring transparency and immutability.
 4. At the end of each day, the system automatically evaluates all predictions.
