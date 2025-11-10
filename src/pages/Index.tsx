@@ -313,7 +313,7 @@ const Index = () => {
     }} />
       
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8">
+      <div className="relative z-10 container mx-auto px-4 py-8 animate-fade-in">
         {/* Header */}
         <header className="mb-12 relative">
           {/* Modern Wallet & Balance Display - Top Right */}

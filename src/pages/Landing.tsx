@@ -32,7 +32,7 @@ const Landing = () => {
       <div className="absolute inset-0 bg-gradient-hero opacity-60 z-0" />
       <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent z-0" />
 
-      <div className="relative z-10 container mx-auto px-4 py-12 max-w-6xl">
+      <div className="relative z-10 container mx-auto px-4 py-12 max-w-6xl animate-fade-in">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
