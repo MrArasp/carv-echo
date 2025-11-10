@@ -41,6 +41,15 @@ const Landing = () => {
           <p className="text-xl md:text-2xl text-muted-foreground mb-8">
             Blockchain-Based Price Prediction Game
           </p>
+          <Button
+            onClick={() => navigate("/prediction")}
+            size="lg"
+            variant="glow"
+            className="text-xl px-12 py-6 h-auto group"
+          >
+            Start Prediction
+            <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </div>
 
         {/* Project Idea and Goal */}
@@ -124,18 +133,6 @@ const Landing = () => {
           </CardContent>
         </Card>
 
-        {/* CTA Button */}
-        <div className="text-center animate-fade-in">
-          <Button
-            onClick={() => navigate("/prediction")}
-            size="lg"
-            variant="glow"
-            className="text-xl px-12 py-6 h-auto group"
-          >
-            Start Prediction
-            <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </div>
       </div>
     </div>
   );
