@@ -321,12 +321,7 @@ const Index = () => {
         <header className="mb-12 relative">
           {/* Home Button - Top Left */}
           <div className="absolute top-0 left-0">
-            <Button
-              onClick={() => navigate("/")}
-              variant="outline"
-              size="lg"
-              className="gap-2 bg-card/80 backdrop-blur-md border-primary/20 hover:border-primary/40 hover:bg-card/90 transition-all"
-            >
+            <Button onClick={() => navigate("/")} variant="outline" size="lg" className="gap-2 bg-card/80 backdrop-blur-md border-primary/20 hover:border-primary/40 hover:bg-card/90 transition-all my-[250px] mx-[50px]">
               <Home className="w-5 h-5" />
               Home
             </Button>
