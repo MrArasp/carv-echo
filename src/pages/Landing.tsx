@@ -8,7 +8,7 @@ const Landing = () => {
 
   const steps = [
     { icon: Wallet, text: "Connect your wallet" },
-    { icon: TrendingUp, text: "Choose prediction direction (±5%)" },
+    { icon: TrendingUp, text: "Choose prediction direction (±10%)" },
     { icon: Shield, text: "Recorded on CARV blockchain" },
     { icon: Clock, text: "Automatic daily evaluation at 00:00 UTC" },
     { icon: Award, text: "Earn points for accuracy" },

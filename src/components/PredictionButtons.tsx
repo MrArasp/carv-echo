@@ -12,8 +12,8 @@ interface PredictionButtonsProps {
 export const PredictionButtons = ({ currentPrice, onPredict, disabled = false }: PredictionButtonsProps) => {
   const handlePredict = (direction: "UP" | "DOWN") => {
     const targetPrice = direction === "UP" 
-      ? (currentPrice * 1.05).toFixed(4)
-      : (currentPrice * 0.95).toFixed(4);
+      ? (currentPrice * 1.10).toFixed(4)
+      : (currentPrice * 0.90).toFixed(4);
 
     toast.info(`Predicting ${direction}`, {
       description: `Target: $${targetPrice}`,
@@ -28,7 +28,7 @@ export const PredictionButtons = ({ currentPrice, onPredict, disabled = false }:
         Make Your Prediction
       </h3>
       <p className="text-muted-foreground text-center mb-6">
-        Will $CARV move 5% up or down by 00:00 UTC?
+        Will $CARV move 10% up or down by 00:00 UTC?
       </p>
       <div className="grid grid-cols-2 gap-4">
         <Button
@@ -39,9 +39,9 @@ export const PredictionButtons = ({ currentPrice, onPredict, disabled = false }:
           disabled={disabled}
         >
           <ArrowUp className="h-8 w-8 mb-2" />
-          <span className="text-2xl font-bold">5% UP</span>
+          <span className="text-2xl font-bold">10% UP</span>
           <span className="text-sm opacity-80">
-            Target: ${(currentPrice * 1.05).toFixed(4)}
+            Target: ${(currentPrice * 1.10).toFixed(4)}
           </span>
         </Button>
         <Button
@@ -52,9 +52,9 @@ export const PredictionButtons = ({ currentPrice, onPredict, disabled = false }:
           disabled={disabled}
         >
           <ArrowDown className="h-8 w-8 mb-2" />
-          <span className="text-2xl font-bold">5% DOWN</span>
+          <span className="text-2xl font-bold">10% DOWN</span>
           <span className="text-sm opacity-80">
-            Target: ${(currentPrice * 0.95).toFixed(4)}
+            Target: ${(currentPrice * 0.90).toFixed(4)}
           </span>
         </Button>
       </div>
